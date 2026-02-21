@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>voltmeadow</title>
+  <meta name="description" content="voltmeadow is a small collection of practical tools—quiet systems, language utilities, and gentle automations." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="voltmeadow" />
+  <meta property="og:description" content="a meadow of practical tools—charged with potential" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://voltmeadow.com" />
+
+  <style>
+    :root{
+      --bg0:#07090f;
+      --bg1:#0b1020;
+      --card:#0f1630;
+      --line:rgba(255,255,255,.08);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.68);
+      --soft:rgba(255,255,255,.55);
+
+      --a:#6bf0ff;   /* volt */
+      --b:#a9ff7a;   /* meadow */
+      --c:#b18cff;   /* dusk */
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1000px 700px at 15% 10%, rgba(107,240,255,.12), transparent 60%),
+        radial-gradient(900px 600px at 85% 15%, rgba(169,255,122,.10), transparent 55%),
+        radial-gradient(700px 700px at 60% 90%, rgba(177,140,255,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    a{color:inherit; text-decoration:none}
+    a:hover{opacity:.92}
+
+    .wrap{max-width:1100px; margin:0 auto; padding:28px 20px 64px}
+    .top{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:18px; padding:10px 0 24px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:.2px;
+    }
+    .mark{
+      width:34px; height:34px; border-radius:12px;
+      background:
+        radial-gradient(14px 14px at 30% 30%, rgba(107,240,255,.95), rgba(107,240,255,.12)),
+        radial-gradient(16px 16px at 70% 70%, rgba(169,255,122,.9), rgba(169,255,122,.10)),
+        linear-gradient(135deg, rgba(177,140,255,.55), rgba(255,255,255,.06));
+      border:1px solid var(--line);
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+    }
+    .brand b{font-weight:650}
+    .nav{
+      display:flex; gap:16px; flex-wrap:wrap; justify-content:flex-end;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .nav a{padding:8px 10px; border-radius:12px}
+    .nav a:hover{background:rgba(255,255,255,.06)}
+
+    .hero{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      padding:34px 24px;
+      overflow:hidden;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(600px 220px at 20% 0%, rgba(107,240,255,.18), transparent 60%),
+        radial-gradient(700px 260px at 80% 10%, rgba(169,255,122,.14), transparent 60%),
+        radial-gradient(520px 260px at 60% 110%, rgba(177,140,255,.14), transparent 60%);
+      pointer-events:none;
+      filter: blur(0px);
+    }
+    .hero-inner{position:relative; display:grid; grid-template-columns: 1.2fr .8fr; gap:24px}
+    @media (max-width: 900px){ .hero-inner{grid-template-columns:1fr} }
+
+    h1{
+      margin:0 0 10px;
+      font-size: 40px;
+      line-height:1.15;
+      letter-spacing:-.6px;
+    }
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:13px; color:var(--muted);
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      padding:7px 10px; border-radius:999px;
+      margin-bottom:14px;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 0 18px rgba(107,240,255,.35);
+    }
+    .lead{
+      margin: 0 0 18px;
+      color: var(--muted);
+      max-width: 58ch;
+    }
+    .cta{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:18px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 600;
+      font-size:14px;
+    }
+    .btn:hover{background: rgba(255,255,255,.09)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(107,240,255,.18), rgba(169,255,122,.12));
+      border-color: rgba(107,240,255,.22);
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.04);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    }
+    .side{
+      padding:16px;
+      display:grid; gap:12px;
+      align-content:start;
+    }
+    .side h3{margin:0; font-size:14px; color:var(--soft); font-weight:650; letter-spacing:.25px}
+    .mini{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      padding:12px;
+    }
+    .mini b{display:block; font-size:14px; margin-bottom:4px}
+    .mini p{margin:0; color:var(--muted); font-size:13px}
+
+    .section{
+      margin-top:26px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+    .section-head{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap;
+      margin-top:30px;
+    }
+    .section-head h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.1px;
+    }
+    .section-head p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 950px){ .grid{grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 640px){ .grid{grid-template-columns: 1fr;} }
+
+    .tool{
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+      min-height: 138px;
+    }
+    .tool:hover{background: rgba(255,255,255,.055)}
+    .tool .kicker{
+      display:flex; align-items:center; gap:8px;
+      color:var(--soft);
+      font-size:12px;
+      letter-spacing:.35px;
+      text-transform: lowercase;
+    }
+    .chip{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+    }
+    .tool h3{margin:10px 0 6px; font-size:16px}
+    .tool p{margin:0; color:var(--muted); font-size:13px; max-width: 58ch}
+    .tool .link{
+      margin-top:12px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      color: rgba(255,255,255,.78);
+      font-weight:600;
+      font-size:13px;
+    }
+    .arrow{opacity:.75}
+    .tool:after{
+      content:"";
+      position:absolute;
+      inset:auto -60px -80px auto;
+      width:160px; height:160px;
+      background: radial-gradient(circle at 30% 30%, rgba(107,240,255,.18), transparent 60%),
+                  radial-gradient(circle at 70% 70%, rgba(169,255,122,.14), transparent 60%);
+      transform: rotate(18deg);
+      pointer-events:none;
+    }
+
+    .twocol{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 900px){ .twocol{grid-template-columns:1fr;} }
+
+    .pad{padding:16px}
+    .list{margin:0; padding-left:18px; color:var(--muted); font-size:14px}
+    .list li{margin:8px 0}
+
+    .footer{
+      margin-top:44px;
+      color: var(--muted);
+      font-size: 13px;
+      display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+    .footer a{color:rgba(255,255,255,.75)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <div><b>voltmeadow</b></div>
+          <div style="color:var(--muted); font-size:13px;">a meadow of small tools, charged with potential</div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="primary">
+        <a href="#tools">tools</a>
+        <a href="#principles">principles</a>
+        <a href="#now-growing">now growing</a>
+        <a href="#contact">contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-label="intro">
+        <div class="hero-inner">
+          <div>
+            <div class="tag"><span class="dot"></span><span>small, stable, low-maintenance systems</span></div>
+            <h1>build once, use quietly, keep working</h1>
+            <p class="lead">
+              voltmeadow is a collection of practical utilities—language tools, gentle automations, and small instruments that reduce friction
+              without demanding attention
+            </p>
+
+            <div class="cta">
+              <a class="btn primary" href="#tools">browse tools</a>
+              <a class="btn" href="#now-growing">see what’s next</a>
+              <a class="btn" href="#contact">get in touch</a>
+            </div>
+          </div>
+
+          <aside class="card side" aria-label="status">
+            <div class="mini">
+              <h3>status</h3>
+              <b>seed stage</b>
+              <p>this meadow grows in small cycles, with a bias toward stability</p>
+            </div>
+
+            <div class="mini">
+              <h3>design rule</h3>
+              <b>boring over brittle</b>
+              <p>simple inputs, simple outputs, minimal dependencies</p>
+            </div>
+
+            <div class="mini">
+              <h3>platform</h3>
+              <b class="mono">voltmeadow.com</b>
+              <p>built for fast load, low cost, and steady iteration</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <div class="section-head" id="tools">
+        <div>
+          <h2>tools</h2>
+          <p>small utilities with strong slugs and obvious purpose</p>
+        </div>
+        <p class="mono" style="margin:0; color:var(--soft);">/tools/&lt;name&gt;</p>
+      </div>
+
+      <section class="grid" aria-label="tools grid">
+        <!-- replace # with real tool links later (ex: /tools/japanese-sign-decoder) -->
+        <a class="card tool" href="#" aria-label="tool placeholder 1">
+          <div class="kicker">
+            <span class="chip">language</span>
+            <span class="chip">decoder</span>
+          </div>
+          <h3>japanese sign decoder</h3>
+          <p>turn signage and UI wording into plain meaning + nuance</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 2">
+          <div class="kicker">
+            <span class="chip">study</span>
+            <span class="chip">anki</span>
+          </div>
+          <h3>kanji lattice exporter</h3>
+          <p>generate a tight memory network and export to flashcards</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 3">
+          <div class="kicker">
+            <span class="chip">planner</span>
+            <span class="chip">calculator</span>
+          </div>
+          <h3>stay window tracker</h3>
+          <p>simple date math for travel windows and re-entry planning</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 4">
+          <div class="kicker">
+            <span class="chip">text</span>
+            <span class="chip">tone</span>
+          </div>
+          <h3>message polisher</h3>
+          <p>make writing calm, neutral, and readable without changing intent</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 5">
+          <div class="kicker">
+            <span class="chip">generator</span>
+            <span class="chip">ambient</span>
+          </div>
+          <h3>weather mood card</h3>
+          <p>generate simple atmosphere cards for journaling or wallpapers</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 6">
+          <div class="kicker">
+            <span class="chip">utility</span>
+            <span class="chip">converter</span>
+          </div>
+          <h3>tiny converter set</h3>
+          <p>fast converters you can bookmark and trust</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+      </section>
+
+      <div class="section-head" id="principles">
+        <div>
+          <h2>principles</h2>
+          <p>how the meadow stays usable over time</p>
+        </div>
+      </div>
+
+      <section class="twocol" aria-label="principles">
+        <div class="card pad">
+          <h3 style="margin:0 0 10px;">what gets built</h3>
+          <ul class="list">
+            <li>narrow tools for recurring annoyances</li>
+            <li>simple inputs, obvious outputs</li>
+            <li>stable dependencies</li>
+            <li>pages that can rank by intent, not promotion</li>
+          </ul>
+        </div>
+        <div class="card pad">
+          <h3 style="margin:0 0 10px;">what gets avoided</h3>
+          <ul class="list">
+            <li>features that create support burden</li>
+            <li>platform lock-in where possible</li>
+            <li>anything that needs a content treadmill</li>
+            <li>products that only work with constant attention</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="section-head" id="now-growing">
+        <div>
+          <h2>now growing</h2>
+          <p>a small public queue so the direction stays coherent</p>
+        </div>
+      </div>
+
+      <section class="card pad" aria-label="roadmap">
+        <ul class="list">
+          <li><span class="mono">/tools/japanese-sign-decoder</span> — first release</li>
+          <li><span class="mono">/tools/kanji-lattice-exporter</span> — export formats + presets</li>
+          <li><span class="mono">/tools/stay-window-tracker</span> — simple country profiles</li>
+        </ul>
+      </section>
+
+      <div class="section-head" id="contact">
+        <div>
+          <h2>contact</h2>
+          <p>feedback, bug reports, or quiet collaboration</p>
+        </div>
+      </div>
+
+      <section class="card pad" aria-label="contact">
+        <p style="margin:0; color:var(--muted);">
+          email:
+          <a class="mono" href="mailto:hello@voltmeadow.com">hello@voltmeadow.com</a>
+          <span style="color:var(--soft);"> (or swap this for a form later)</span>
+        </p>
+      </section>
+
+      <footer class="footer">
+        <div>© <span id="y"></span> voltmeadow</div>
+        <div>
+          <a href="#tools">tools</a> ·
+          <a href="#principles">principles</a> ·
+          <a href="#contact">contact</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
