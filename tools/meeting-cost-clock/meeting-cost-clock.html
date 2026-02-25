@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Cost Clock — VoltMeadow</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080808;
+  --surface: #0f0f0f;
+  --panel: #141414;
+  --border: #1e1e1e;
+  --border-bright: #2a2a2a;
+  --accent: #e8ff47;
+  --accent-dim: #9aaa1a;
+  --accent-glow: rgba(232,255,71,0.18);
+  --red: #ff3333;
+  --red-glow: rgba(255,51,51,0.2);
+  --amber: #ffaa00;
+  --amber-glow: rgba(255,170,0,0.18);
+  --text: #f0f0f0;
+  --muted: #444;
+  --reel-h: 90px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-x: hidden;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+.container { width:100%; max-width:700px; display:flex; flex-direction:column; }
+.header {
+  display:flex; align-items:baseline; gap:1rem; margin-bottom:2rem;
+  opacity:0; animation:fadeUp 0.5s ease forwards;
+}
+.logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.05rem; letter-spacing:-0.02em; color:var(--accent); }
+.tagline { font-size:0.62rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; }
+
+/* SETUP */
+.setup-panel {
+  background:var(--panel); border:1px solid var(--border-bright); padding:2rem;
+  opacity:0; animation:fadeUp 0.5s ease 0.1s forwards;
+}
+.panel-label { font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:1.5rem; }
+.inputs-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem; }
+.input-group { display:flex; flex-direction:column; gap:0.35rem; }
+.input-group label { font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+.input-group input {
+  background:var(--bg); border:1px solid var(--border-bright); color:var(--text);
+  font-family:'DM Mono',monospace; font-size:1.05rem; padding:0.7rem 1rem; outline:none;
+  transition:border-color 0.2s, box-shadow 0.2s; width:100%;
+}
+.input-group input:focus { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-glow); }
+.input-group input::placeholder { color:var(--muted); }
+.cost-preview { font-size:0.68rem; color:var(--muted); margin-bottom:1.25rem; min-height:1.2rem; transition:color 0.3s; }
+.cost-preview.active { color:var(--accent-dim); }
+.start-btn {
+  width:100%; background:var(--accent); color:#000; border:none;
+  font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:0.12em;
+  padding:0.9rem; cursor:pointer; transition:background 0.2s,box-shadow 0.2s,transform 0.1s;
+}
+.start-btn:hover { background:#f5ff6e; box-shadow:0 0 24px var(--accent-glow); }
+.start-btn:active { transform:scale(0.99); }
+.start-btn:disabled { background:var(--border-bright); color:var(--muted); cursor:not-allowed; box-shadow:none; }
+
+/* CLOCK PANEL */
+.clock-panel { display:none; flex-direction:column; }
+.clock-panel.visible { display:flex; }
+
+/* SLOT HOUSING */
+.slot-housing {
+  background: linear-gradient(180deg,#1c1c1c 0%,#0e0e0e 100%);
+  border:1px solid var(--border-bright); border-bottom:none;
+  padding:1.5rem 1.5rem 1.2rem; position:relative; overflow:hidden;
+}
+.slot-housing::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 70%, var(--accent-glow) 0%, transparent 65%);
+  transition:background 0.8s; pointer-events:none;
+}
+.slot-housing.warning::before { background:radial-gradient(ellipse at 50% 70%, var(--amber-glow) 0%, transparent 65%); }
+.slot-housing.danger::before  { background:radial-gradient(ellipse at 50% 70%, var(--red-glow) 0%, transparent 65%); }
+.slot-scanlines {
+  position:absolute; inset:0; pointer-events:none; z-index:15;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.07) 3px,rgba(0,0,0,0.07) 4px);
+}
+.slot-label { font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:1rem; position:relative; }
+
+/* REEL TRACK */
+.reel-track { display:flex; align-items:center; justify-content:center; gap:3px; position:relative; }
+.reel-dollar {
+  font-family:'Bebas Neue',sans-serif; font-size:2.4rem; color:var(--accent);
+  align-self:center; padding-bottom:0.1em; opacity:0.65; margin-right:3px;
+  transition:color 0.5s;
+}
+.slot-housing.warning .reel-dollar { color:var(--amber); }
+.slot-housing.danger  .reel-dollar { color:var(--red); }
+.reel-dot {
+  font-family:'Bebas Neue',sans-serif; font-size:2.8rem; color:var(--accent);
+  height:var(--reel-h); display:flex; align-items:flex-end; padding-bottom:9px;
+  opacity:0.55; transition:color 0.5s; line-height:1;
+}
+.slot-housing.warning .reel-dot { color:var(--amber); }
+.slot-housing.danger  .reel-dot { color:var(--red); }
+.reel-comma {
+  font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--accent);
+  height:var(--reel-h); display:flex; align-items:flex-end; padding-bottom:11px;
+  opacity:0.4; transition:color 0.5s; width:14px; justify-content:center;
+}
+.slot-housing.warning .reel-comma { color:var(--amber); }
+.slot-housing.danger  .reel-comma { color:var(--red); }
+
+/* INDIVIDUAL REEL */
+.reel-window {
+  width:60px; height:var(--reel-h); overflow:hidden; position:relative;
+  background:#050505;
+  border:1px solid #2a2a2a;
+  box-shadow: inset 0 3px 10px rgba(0,0,0,0.95), inset 0 -3px 10px rgba(0,0,0,0.95), 0 0 1px rgba(255,255,255,0.04);
+  border-radius:4px; flex-shrink:0;
+}
+.reel-window.cents { width:47px; height:calc(var(--reel-h) * 0.74); align-self:flex-end; margin-bottom:9px; }
+.reel-window::before, .reel-window::after {
+  content:''; position:absolute; left:0; right:0; height:30%; z-index:10; pointer-events:none;
+}
+.reel-window::before { top:0; background:linear-gradient(180deg,rgba(0,0,0,0.94) 0%,transparent 100%); }
+.reel-window::after  { bottom:0; background:linear-gradient(0deg,rgba(0,0,0,0.94) 0%,transparent 100%); }
+.reel-highlight {
+  position:absolute; top:50%; left:0; right:0; height:2px; transform:translateY(-50%);
+  background:rgba(232,255,71,0.1); z-index:11; pointer-events:none; transition:background 0.5s;
+}
+.slot-housing.warning .reel-highlight { background:rgba(255,170,0,0.1); }
+.slot-housing.danger  .reel-highlight { background:rgba(255,51,51,0.13); }
+
+/* REEL STRIP */
+.reel-strip { display:flex; flex-direction:column; align-items:center; will-change:transform; }
+.reel-digit {
+  height:var(--reel-h); width:100%; display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif; font-size:4rem; line-height:1;
+  color:var(--accent); transition:color 0.5s; flex-shrink:0;
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+.reel-window.cents .reel-digit { height:calc(var(--reel-h)*0.74); font-size:3rem; }
+.slot-housing.warning .reel-digit { color:var(--amber); text-shadow:0 0 20px var(--amber-glow); }
+.slot-housing.danger  .reel-digit { color:var(--red);   text-shadow:0 0 20px var(--red-glow); }
+
+/* housing footer */
+.housing-footer { display:flex; align-items:center; justify-content:space-between; margin-top:1rem; position:relative; }
+.running-indicator { display:flex; align-items:center; gap:0.4rem; font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
+.pulse-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); animation:pulse 1s ease infinite; flex-shrink:0; }
+.pulse-dot.paused { background:var(--muted); animation:none; }
+.slot-housing.warning .pulse-dot { background:var(--amber); }
+.slot-housing.danger  .pulse-dot { background:var(--red); }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.2;transform:scale(0.6)} }
+.timer-value { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:0.1em; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+/* PROGRESS BAR */
+.progress-bar-track { height:2px; background:var(--border); overflow:hidden; }
+.progress-bar-fill { height:100%; width:0; background:var(--accent); transition:background 0.5s; }
+.progress-bar-fill.running { animation:barPulse 1.6s ease-in-out infinite; }
+@keyframes barPulse { 0%{width:0;margin-left:0} 50%{width:60%;margin-left:20%} 100%{width:0;margin-left:100%} }
+
+/* STATS */
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--border-bright); border-top:none; border-bottom:none; }
+.stat { padding:0.9rem 0.5rem; border-right:1px solid var(--border-bright); text-align:center; }
+.stat:last-child { border-right:none; }
+.stat-value { font-family:'Bebas Neue',sans-serif; font-size:1.35rem; letter-spacing:0.05em; color:var(--text); margin-bottom:0.15rem; }
+.stat-label { font-size:0.58rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+
+/* CONTROLS */
+.controls { display:grid; grid-template-columns:1fr 1fr 1fr; border:1px solid var(--border-bright); }
+.ctrl-btn {
+  background:var(--panel); border:none; border-right:1px solid var(--border-bright);
+  color:var(--text); font-family:'DM Mono',monospace; font-size:0.68rem;
+  letter-spacing:0.1em; text-transform:uppercase; padding:0.9rem;
+  cursor:pointer; transition:background 0.15s,color 0.15s;
+}
+.ctrl-btn:last-child { border-right:none; }
+.ctrl-btn:hover { background:var(--border-bright); }
+.ctrl-btn.primary { color:var(--accent); }
+.ctrl-btn.reset-btn:hover { color:var(--red); }
+
+.ticker {
+  background:var(--bg); border:1px solid var(--border-bright); border-top:none;
+  padding:0.55rem 1rem; font-size:0.62rem; color:var(--muted); display:flex; justify-content:space-between;
+}
+
+/* MILESTONES */
+.milestones {
+  margin-top:0.75rem; background:var(--panel); border:1px solid var(--border-bright); padding:1.1rem;
+  opacity:0; animation:fadeUp 0.5s ease 0.2s forwards;
+}
+.milestones-label { font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:0.85rem; }
+.milestone-list { display:flex; flex-direction:column; gap:0.3rem; }
+.milestone-item {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:0.72rem; color:var(--muted); padding:0.35rem 0;
+  border-bottom:1px solid var(--border); transition:color 0.3s;
+}
+.milestone-item:last-child { border-bottom:none; }
+.milestone-item.reached { color:var(--text); }
+.milestone-item.reached .milestone-marker { color:var(--accent); }
+.milestone-marker { font-size:0.62rem; }
+
+/* SHARE */
+.share-section { margin-top:0.75rem; display:flex; gap:0.5rem; opacity:0; animation:fadeUp 0.5s ease 0.3s forwards; }
+.share-btn {
+  flex:1; background:transparent; border:1px solid var(--border-bright); color:var(--muted);
+  font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase;
+  padding:0.7rem; cursor:pointer; transition:border-color 0.2s,color 0.2s,box-shadow 0.2s;
+}
+.share-btn:hover { border-color:var(--accent); color:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+.new-meeting-btn {
+  margin-top:0.4rem; background:transparent; border:none; color:var(--muted);
+  font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.1em;
+  text-transform:uppercase; padding:0.7rem; cursor:pointer; width:100%; text-align:center; transition:color 0.2s;
+}
+.new-meeting-btn:hover { color:var(--text); }
+
+/* FOOTER */
+.footer { margin-top:2rem; font-size:0.58rem; color:var(--muted); text-align:center; letter-spacing:0.08em; opacity:0; animation:fadeUp 0.5s ease 0.4s forwards; }
+.footer a { color:var(--muted); text-decoration:none; border-bottom:1px solid var(--border-bright); transition:color 0.2s; }
+.footer a:hover { color:var(--accent); }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(1.5rem);
+  background:var(--accent); color:#000; font-family:'DM Mono',monospace; font-size:0.68rem;
+  letter-spacing:0.08em; padding:0.55rem 1.2rem; opacity:0;
+  transition:opacity 0.25s,transform 0.25s; pointer-events:none; z-index:99999;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+@media(max-width:500px) {
+  :root { --reel-h:70px; }
+  .reel-window { width:46px; }
+  .reel-digit { font-size:3rem; }
+  .reel-window.cents { width:36px; }
+  .inputs-row { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">Meeting Cost Clock</div>
+    <div class="tagline">by VoltMeadow</div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="setup-panel" id="setupPanel">
+    <div class="panel-label">Configure your meeting</div>
+    <div class="inputs-row">
+      <div class="input-group">
+        <label>Attendees</label>
+        <input type="number" id="attendees" placeholder="8" min="1" max="500">
+      </div>
+      <div class="input-group">
+        <label>Avg. Annual Salary ($)</label>
+        <input type="number" id="salary" placeholder="75000" min="1">
+      </div>
+    </div>
+    <div class="cost-preview" id="costPreview">Enter attendees and salary to preview cost</div>
+    <button class="start-btn" id="startBtn" disabled>Start The Clock</button>
+  </div>
+
+  <!-- CLOCK -->
+  <div class="clock-panel" id="clockPanel">
+    <div class="slot-housing" id="slotHousing">
+      <div class="slot-scanlines"></div>
+      <div class="slot-label">Total Meeting Cost</div>
+      <div class="reel-track" id="reelTrack"></div>
+      <div class="housing-footer">
+        <div class="running-indicator">
+          <div class="pulse-dot" id="pulseDot"></div>
+          <span id="runningLabel">running</span>
+        </div>
+        <div class="timer-value" id="timerValue">00:00:00</div>
+      </div>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-value" id="statAttendees">—</div><div class="stat-label">Attendees</div></div>
+      <div class="stat"><div class="stat-value" id="statPerMin">—</div><div class="stat-label">Per Minute</div></div>
+      <div class="stat"><div class="stat-value" id="statPerHour">—</div><div class="stat-label">Per Hour</div></div>
+    </div>
+    <div class="controls">
+      <button class="ctrl-btn primary" id="pauseBtn" onclick="togglePause()">Pause</button>
+      <button class="ctrl-btn" onclick="copySnapshot()">Copy Snapshot</button>
+      <button class="ctrl-btn reset-btn" onclick="resetClock()">Reset</button>
+    </div>
+    <div class="ticker">
+      <span id="perSecondLabel">—</span>
+      <span id="tickerRight">—</span>
+    </div>
+    <div class="milestones">
+      <div class="milestones-label">Cost milestones</div>
+      <div class="milestone-list" id="milestoneList"></div>
+    </div>
+    <div class="share-section">
+      <button class="share-btn" onclick="copyShareLink()">Copy Share Link</button>
+      <button class="share-btn" onclick="copySnapshot()">Copy Summary</button>
+    </div>
+    <button class="new-meeting-btn" onclick="newMeeting()">← New Meeting</button>
+  </div>
+
+  <div class="footer">
+    A free tool by <a href="https://voltmeadow.com" target="_blank">VoltMeadow</a>
+    &nbsp;·&nbsp; No data collected &nbsp;·&nbsp; Runs entirely in your browser
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const REEL_H_FULL  = 90;
+const REEL_H_CENTS = 67;
+const DIGITS_PER_LOOP = 10;
+const LOOPS = 4; // repeats in strip
+
+let rafId = null;
+let startTimestamp = null;
+let pausedAt = null;
+let totalPausedMs = 0;
+let paused = false;
+let costPerSecond = 0;
+let attendeesVal = 0, salaryVal = 0;
+let milestones = [], reachedMilestones = new Set();
+let lastWholeSecond = -1;
+let currentDollarDigits = 1;
+
+// Smooth reel positions (in pixels, not snapped)
+let reelPos = {}; // id -> current pixel position (smoothed)
+
+const attendeesInput = document.getElementById('attendees');
+const salaryInput    = document.getElementById('salary');
+
+function calcCPS(a, s) { return (s / 52 / 40 / 3600) * a; }
+function fmtD(n) {
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2)+'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(1)+'k';
+  return '$' + n.toFixed(2);
+}
+function fmtT(s) {
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+  return [h,m,sec].map(v=>String(v).padStart(2,'0')).join(':');
+}
+
+function updatePreview() {
+  const a=parseInt(attendeesInput.value), s=parseInt(salaryInput.value);
+  const prev=document.getElementById('costPreview'), btn=document.getElementById('startBtn');
+  if (a>0&&s>0) {
+    const cps=calcCPS(a,s);
+    prev.textContent=`≈ ${fmtD(cps*60)}/min · ${fmtD(cps*3600)}/hr`;
+    prev.classList.add('active'); btn.disabled=false;
+  } else {
+    prev.textContent='Enter attendees and salary to preview cost';
+    prev.classList.remove('active'); btn.disabled=true;
+  }
+}
+attendeesInput.addEventListener('input', updatePreview);
+salaryInput.addEventListener('input', updatePreview);
+[attendeesInput,salaryInput].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('startBtn').disabled)startClock();}));
+
+// ── BUILD REEL ──
+function makeReel(id, isCents) {
+  const win = document.createElement('div');
+  win.className = 'reel-window' + (isCents?' cents':'');
+  win.id = 'rw-'+id;
+
+  const hl = document.createElement('div');
+  hl.className = 'reel-highlight';
+  win.appendChild(hl);
+
+  const strip = document.createElement('div');
+  strip.className = 'reel-strip';
+  strip.id = 'rs-'+id;
+
+  for (let loop=0; loop<LOOPS; loop++) {
+    for (let d=0; d<10; d++) {
+      const cell = document.createElement('div');
+      cell.className = 'reel-digit';
+      cell.textContent = d;
+      strip.appendChild(cell);
+    }
+  }
+  win.appendChild(strip);
+
+  // Start position in the second loop so we have room to go either direction
+  const h = isCents ? REEL_H_CENTS : REEL_H_FULL;
+  reelPos[id] = DIGITS_PER_LOOP * h; // start of loop 1 (0-indexed)
+  return win;
+}
+
+function buildReels(numDollar) {
+  const track = document.getElementById('reelTrack');
+  track.innerHTML = '';
+
+  const dollar = document.createElement('div');
+  dollar.className = 'reel-dollar'; dollar.textContent = '$';
+  track.appendChild(dollar);
+
+  for (let i=0; i<numDollar; i++) {
+    if (i>0 && (numDollar-i)%3===0) {
+      const c=document.createElement('div'); c.className='reel-comma'; c.textContent=','; track.appendChild(c);
+    }
+    track.appendChild(makeReel('d'+i, false));
+  }
+
+  const dot=document.createElement('div'); dot.className='reel-dot'; dot.textContent='.'; track.appendChild(dot);
+  track.appendChild(makeReel('c0', true));
+  track.appendChild(makeReel('c1', true));
+}
+
+// ── POSITION A REEL ──
+// targetDigit: 0-9 (can be fractional for smooth scroll)
+// We move the strip so the target digit is centered in the window
+function positionReel(id, targetDigit, isCents, instant) {
+  const strip = document.getElementById('rs-'+id);
+  if (!strip) return;
+  const h = isCents ? REEL_H_CENTS : REEL_H_FULL;
+
+  // The strip has LOOPS*10 digits. Each loop starts at loop*10*h.
+  // We keep position in loop 1 (10*h base) to allow smooth transitions.
+  // Target absolute position for digit d in loop 1:
+  const base = DIGITS_PER_LOOP * h; // loop 1 start
+  let target = base + Math.floor(targetDigit) * h;
+  // Add fractional offset for sub-digit smoothness
+  target += (targetDigit % 1) * h;
+
+  let current = reelPos[id] !== undefined ? reelPos[id] : target;
+
+  if (instant) {
+    current = target;
+  } else {
+    // Always move forward (downward = increasing number)
+    // If target is behind current by more than half a revolution, wrap
+    let diff = target - current;
+    // normalise to forward direction
+    const rev = DIGITS_PER_LOOP * h;
+    if (diff < 0) diff += rev;
+    if (diff > rev * 0.9) diff -= rev;
+
+    // Spring-like: move a fraction toward target each frame
+    // For fast-moving cents, just jump; for dollars, ease
+    const speed = isCents ? 0.35 : 0.25;
+    current = current + diff * speed;
+
+    // Prevent drift: keep within loop 1-2 range
+    if (current > (LOOPS-1) * DIGITS_PER_LOOP * h) current -= DIGITS_PER_LOOP * h;
+    if (current < h) current += DIGITS_PER_LOOP * h;
+  }
+
+  reelPos[id] = current;
+  strip.style.transform = `translateY(-${current}px)`;
+}
+
+// ── UPDATE ALL REELS ──
+function updateReels(cost, instant) {
+  const dollars = Math.floor(cost);
+  const cents   = (cost - dollars) * 100;
+
+  const dStr  = String(dollars);
+  const needed = Math.max(1, dStr.length);
+  if (needed !== currentDollarDigits) {
+    currentDollarDigits = needed;
+    buildReels(needed);
+  }
+
+  const padded = dStr.padStart(needed, '0');
+  for (let i=0; i<needed; i++) {
+    positionReel('d'+i, parseInt(padded[i]), false, instant);
+  }
+
+  // Cents — tens digit is floor(cents/10), units digit is fractional for blur effect
+  positionReel('c0', Math.floor(cents/10), true, instant);
+  positionReel('c1', cents % 10, true, instant); // fractional → blurs beautifully
+}
+
+function setColor(cost) {
+  const h = document.getElementById('slotHousing');
+  h.classList.remove('warning','danger');
+  if      (cost>=500) h.classList.add('danger');
+  else if (cost>=100) h.classList.add('warning');
+}
+
+function buildMilestones(cph) {
+  const raw=[10,25,50,100,250,500,1000,2500,5000,10000,25000];
+  milestones=raw.filter(m=>m<=cph*8);
+  if (!milestones.length) milestones=[1,5,10];
+  const mx=milestones[milestones.length-1];
+  if (cph*2>mx) milestones.push(mx*5);
+  const list=document.getElementById('milestoneList');
+  list.innerHTML='';
+  milestones.forEach(m=>{
+    const el=document.createElement('div');
+    el.className='milestone-item'; el.id='ms-'+m;
+    el.innerHTML=`<span>${fmtD(m)}</span><span class="milestone-marker">not yet reached</span>`;
+    list.appendChild(el);
+  });
+  reachedMilestones.clear();
+}
+
+function checkMilestones(cost, sec) {
+  milestones.forEach(m=>{
+    if (cost>=m&&!reachedMilestones.has(m)) {
+      reachedMilestones.add(m);
+      const el=document.getElementById('ms-'+m);
+      if(el){el.classList.add('reached');el.querySelector('.milestone-marker').textContent='reached at '+fmtT(sec);}
+    }
+  });
+}
+
+// ── RAF LOOP ──
+function rafLoop(ts) {
+  if (!startTimestamp) startTimestamp = ts;
+  const elMs  = (ts - startTimestamp) - totalPausedMs;
+  const elSec = elMs / 1000;
+  const cost  = costPerSecond * elSec;
+
+  updateReels(cost, false);
+  setColor(cost);
+
+  const whole = Math.floor(elSec);
+  if (whole !== lastWholeSecond) {
+    lastWholeSecond = whole;
+    document.getElementById('timerValue').textContent = fmtT(whole);
+    checkMilestones(cost, whole);
+  }
+  rafId = requestAnimationFrame(rafLoop);
+}
+
+function startClock() {
+  attendeesVal  = parseInt(attendeesInput.value);
+  salaryVal     = parseInt(salaryInput.value);
+  costPerSecond = calcCPS(attendeesVal, salaryVal);
+
+  document.getElementById('statAttendees').textContent = attendeesVal;
+  document.getElementById('statPerMin').textContent    = fmtD(costPerSecond*60);
+  document.getElementById('statPerHour').textContent   = fmtD(costPerSecond*3600);
+  document.getElementById('perSecondLabel').textContent= fmtD(costPerSecond)+'/sec';
+  document.getElementById('tickerRight').textContent   = 'Projected/hr: '+fmtD(costPerSecond*3600);
+
+  buildMilestones(costPerSecond*3600);
+  currentDollarDigits = 1;
+  buildReels(1);
+
+  document.getElementById('setupPanel').style.display = 'none';
+  const cp=document.getElementById('clockPanel');
+  cp.style.display='flex'; cp.classList.add('visible');
+  document.getElementById('progressFill').classList.add('running');
+
+  startTimestamp=null; totalPausedMs=0; pausedAt=null; paused=false; lastWholeSecond=-1;
+  rafId=requestAnimationFrame(rafLoop);
+}
+document.getElementById('startBtn').addEventListener('click', startClock);
+
+function togglePause() {
+  paused=!paused;
+  const btn=document.getElementById('pauseBtn'), dot=document.getElementById('pulseDot'),
+        lbl=document.getElementById('runningLabel'), fill=document.getElementById('progressFill');
+  if (paused) {
+    pausedAt=performance.now(); cancelAnimationFrame(rafId);
+    btn.textContent='Resume'; dot.classList.add('paused'); lbl.textContent='paused'; fill.classList.remove('running');
+  } else {
+    totalPausedMs+=performance.now()-pausedAt; pausedAt=null;
+    btn.textContent='Pause'; dot.classList.remove('paused'); lbl.textContent='running'; fill.classList.add('running');
+    rafId=requestAnimationFrame(rafLoop);
+  }
+}
+
+function resetClock() {
+  cancelAnimationFrame(rafId);
+  startTimestamp=null; totalPausedMs=0; pausedAt=null; paused=false; lastWholeSecond=-1; currentDollarDigits=1;
+  buildReels(1); updateReels(0, true);
+  document.getElementById('slotHousing').classList.remove('warning','danger');
+  document.getElementById('timerValue').textContent='00:00:00';
+  document.getElementById('pauseBtn').textContent='Pause';
+  document.getElementById('pulseDot').classList.remove('paused');
+  document.getElementById('runningLabel').textContent='running';
+  document.getElementById('progressFill').classList.add('running');
+  reachedMilestones.clear();
+  document.querySelectorAll('.milestone-item').forEach(el=>{
+    el.classList.remove('reached'); el.querySelector('.milestone-marker').textContent='not yet reached';
+  });
+  rafId=requestAnimationFrame(rafLoop);
+}
+
+function newMeeting() {
+  cancelAnimationFrame(rafId); startTimestamp=null;
+  document.getElementById('clockPanel').style.display='none';
+  document.getElementById('clockPanel').classList.remove('visible');
+  document.getElementById('setupPanel').style.display='block';
+  document.getElementById('slotHousing').classList.remove('warning','danger');
+  document.getElementById('progressFill').classList.remove('running');
+}
+
+function getElSec() {
+  if (!startTimestamp) return 0;
+  return ((paused?pausedAt:performance.now())-startTimestamp-totalPausedMs)/1000;
+}
+function showToast(m) {
+  const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+function copySnapshot() {
+  const s=Math.floor(getElSec()), c=costPerSecond*s;
+  const txt=`Meeting Cost Snapshot\n──────────────────────\nAttendees:   ${attendeesVal}\nDuration:    ${fmtT(s)}\nTotal Cost:  ${fmtD(c)}\nCost/min:    ${fmtD(costPerSecond*60)}\nCost/hr:     ${fmtD(costPerSecond*3600)}\n──────────────────────\nMeeting Cost Clock · voltmeadow.com`;
+  navigator.clipboard.writeText(txt).then(()=>showToast('Snapshot copied'));
+}
+function copyShareLink() {
+  const url=`${location.origin}${location.pathname}?a=${attendeesVal}&s=${salaryVal}`;
+  navigator.clipboard.writeText(url).then(()=>showToast('Link copied — paste it in your calendar invite'));
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  const p=new URLSearchParams(location.search);
+  if(p.get('a'))attendeesInput.value=p.get('a');
+  if(p.get('s'))salaryInput.value=p.get('s');
+  if(p.get('a')&&p.get('s'))updatePreview();
+});
+</script>
+</body>
+</html>
