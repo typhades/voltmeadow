@@ -1,1093 +1,465 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>voltmeadow — small tools, charged with potential</title>
-<meta name="description" content="voltmeadow is a growing collection of small, honest utilities. No accounts. No tracking. No content treadmill. Just tools that work.">
-<meta property="og:title" content="voltmeadow">
-<meta property="og:description" content="a meadow of small tools, charged with potential">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://voltmeadow.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>voltmeadow</title>
+  <meta name="description" content="voltmeadow is a small collection of practical tools—quiet systems, language utilities, and gentle automations." />
 
-<style>
-/* ── TOKENS ── */
-:root {
-  --bg:        #07090f;
-  --bg1:       #0b0e18;
-  --surface:   #0f1220;
-  --card:      #111525;
-  --border:    rgba(255,255,255,.07);
-  --border-hi: rgba(255,255,255,.12);
-  --text:      rgba(255,255,255,.92);
-  --muted:     rgba(255,255,255,.5);
-  --soft:      rgba(255,255,255,.32);
+  <!-- Open Graph -->
+  <meta property="og:title" content="voltmeadow" />
+  <meta property="og:description" content="a meadow of practical tools—charged with potential" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://voltmeadow.com" />
 
-  --volt:  #6bf0ff;
-  --green: #a9ff7a;
-  --dusk:  #b18cff;
-  --yellow:#e8ff47;
+  <style>
+    :root{
+      --bg0:#07090f;
+      --bg1:#0b1020;
+      --card:#0f1630;
+      --line:rgba(255,255,255,.08);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.68);
+      --soft:rgba(255,255,255,.55);
 
-  --volt-glow:  rgba(107,240,255,.16);
-  --green-glow: rgba(169,255,122,.13);
-  --dusk-glow:  rgba(177,140,255,.13);
-  --yellow-glow:rgba(232,255,71,.16);
+      --a:#6bf0ff;   /* volt */
+      --b:#a9ff7a;   /* meadow */
+      --c:#b18cff;   /* dusk */
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
 
-  --radius: 16px;
-  --reel-h: 80px;
-}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1000px 700px at 15% 10%, rgba(107,240,255,.12), transparent 60%),
+        radial-gradient(900px 600px at 85% 15%, rgba(169,255,122,.10), transparent 55%),
+        radial-gradient(700px 700px at 60% 90%, rgba(177,140,255,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
 
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body {
-  font: 15px/1.6 'DM Mono', ui-monospace, monospace;
-  color: var(--text);
-  background:
-    radial-gradient(900px 600px at 10% 5%,  var(--volt-glow),  transparent 60%),
-    radial-gradient(800px 500px at 90% 8%,  var(--green-glow), transparent 55%),
-    radial-gradient(600px 600px at 55% 95%, var(--dusk-glow),  transparent 55%),
-    linear-gradient(180deg, var(--bg), var(--bg1) 100%);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+    a{color:inherit; text-decoration:none}
+    a:hover{opacity:.92}
 
-/* scanlines — subtle, not aggressive */
-body::after {
-  content:'';
-  position:fixed; inset:0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px);
-  pointer-events:none;
-  z-index:9000;
-}
+    .wrap{max-width:1100px; margin:0 auto; padding:28px 20px 64px}
+    .top{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:18px; padding:10px 0 24px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:.2px;
+    }
+    .mark{
+      width:34px; height:34px; border-radius:12px;
+      background:
+        radial-gradient(14px 14px at 30% 30%, rgba(107,240,255,.95), rgba(107,240,255,.12)),
+        radial-gradient(16px 16px at 70% 70%, rgba(169,255,122,.9), rgba(169,255,122,.10)),
+        linear-gradient(135deg, rgba(177,140,255,.55), rgba(255,255,255,.06));
+      border:1px solid var(--line);
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+    }
+    .brand b{font-weight:650}
+    .nav{
+      display:flex; gap:16px; flex-wrap:wrap; justify-content:flex-end;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .nav a{padding:8px 10px; border-radius:12px}
+    .nav a:hover{background:rgba(255,255,255,.06)}
 
-a{color:inherit;text-decoration:none}
+    .hero{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      padding:34px 24px;
+      overflow:hidden;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(600px 220px at 20% 0%, rgba(107,240,255,.18), transparent 60%),
+        radial-gradient(700px 260px at 80% 10%, rgba(169,255,122,.14), transparent 60%),
+        radial-gradient(520px 260px at 60% 110%, rgba(177,140,255,.14), transparent 60%);
+      pointer-events:none;
+      filter: blur(0px);
+    }
+    .hero-inner{position:relative; display:grid; grid-template-columns: 1.2fr .8fr; gap:24px}
+    @media (max-width: 900px){ .hero-inner{grid-template-columns:1fr} }
 
-/* ── LAYOUT ── */
-.wrap { max-width:1080px; margin:0 auto; padding:28px 20px 80px; }
+    h1{
+      margin:0 0 10px;
+      font-size: 40px;
+      line-height:1.15;
+      letter-spacing:-.6px;
+    }
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:13px; color:var(--muted);
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      padding:7px 10px; border-radius:999px;
+      margin-bottom:14px;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 0 18px rgba(107,240,255,.35);
+    }
+    .lead{
+      margin: 0 0 18px;
+      color: var(--muted);
+      max-width: 58ch;
+    }
+    .cta{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:18px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 600;
+      font-size:14px;
+    }
+    .btn:hover{background: rgba(255,255,255,.09)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(107,240,255,.18), rgba(169,255,122,.12));
+      border-color: rgba(107,240,255,.22);
+    }
 
-/* ── NAV ── */
-.nav {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 0 32px; gap:16px; flex-wrap:wrap;
-}
-.brand {
-  display:flex; align-items:center; gap:12px;
-}
-.mark {
-  width:32px; height:32px; border-radius:10px; flex-shrink:0;
-  background:
-    radial-gradient(12px 12px at 30% 30%, rgba(107,240,255,.95), rgba(107,240,255,.1)),
-    radial-gradient(14px 14px at 72% 72%, rgba(169,255,122,.9), rgba(169,255,122,.1)),
-    linear-gradient(135deg, rgba(177,140,255,.5), rgba(255,255,255,.05));
-  border:1px solid var(--border-hi);
-  box-shadow: 0 0 20px rgba(107,240,255,.15);
-}
-.brand-text { line-height:1.3; }
-.brand-name {
-  font-family:'Syne',sans-serif;
-  font-weight:800;
-  font-size:1rem;
-  letter-spacing:-0.02em;
-  color:var(--text);
-}
-.brand-sub { font-size:0.62rem; color:var(--muted); letter-spacing:0.06em; }
-.nav-links {
-  display:flex; gap:4px; flex-wrap:wrap;
-}
-.nav-links a {
-  font-size:0.72rem; letter-spacing:0.08em; text-transform:lowercase;
-  color:var(--muted); padding:6px 10px; border-radius:8px;
-  transition:background 0.15s, color 0.15s;
-}
-.nav-links a:hover { background:rgba(255,255,255,.06); color:var(--text); }
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.04);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    }
+    .side{
+      padding:16px;
+      display:grid; gap:12px;
+      align-content:start;
+    }
+    .side h3{margin:0; font-size:14px; color:var(--soft); font-weight:650; letter-spacing:.25px}
+    .mini{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      padding:12px;
+    }
+    .mini b{display:block; font-size:14px; margin-bottom:4px}
+    .mini p{margin:0; color:var(--muted); font-size:13px}
 
-/* ── HERO ── */
-.hero {
-  border:1px solid var(--border-hi);
-  border-radius:var(--radius);
-  background: linear-gradient(160deg, rgba(255,255,255,.055) 0%, rgba(255,255,255,.02) 100%);
-  overflow:hidden;
-  position:relative;
-  margin-bottom:24px;
-}
-.hero::before {
-  content:'';
-  position:absolute; inset:-1px;
-  background:
-    radial-gradient(600px 200px at 15% 0%, rgba(107,240,255,.14), transparent 55%),
-    radial-gradient(500px 200px at 85% 0%, rgba(169,255,122,.1), transparent 55%),
-    radial-gradient(400px 300px at 50% 110%, rgba(177,140,255,.12), transparent 55%);
-  pointer-events:none;
-}
-.hero-inner {
-  position:relative;
-  display:grid;
-  grid-template-columns: 1fr 1.05fr;
-  gap:0;
-}
-@media(max-width:860px){ .hero-inner{grid-template-columns:1fr} }
+    .section{
+      margin-top:26px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+    .section-head{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap;
+      margin-top:30px;
+    }
+    .section-head h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.1px;
+    }
+    .section-head p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
 
-/* hero left */
-.hero-left {
-  padding:2.5rem 2rem 2.5rem 2.5rem;
-  display:flex; flex-direction:column; justify-content:center; gap:1.1rem;
-}
-.badge {
-  display:inline-flex; align-items:center; gap:8px;
-  font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase;
-  color:var(--muted);
-  border:1px solid var(--border);
-  background:rgba(0,0,0,.2);
-  padding:5px 10px; border-radius:999px;
-  width:fit-content;
-}
-.badge-dot {
-  width:6px; height:6px; border-radius:50%;
-  background:linear-gradient(135deg, var(--volt), var(--green));
-  box-shadow: 0 0 10px rgba(107,240,255,.5);
-  flex-shrink:0;
-  animation: breathe 2.5s ease-in-out infinite;
-}
-@keyframes breathe {
-  0%,100%{box-shadow:0 0 8px rgba(107,240,255,.5)}
-  50%{box-shadow:0 0 18px rgba(107,240,255,.85), 0 0 30px rgba(169,255,122,.3)}
-}
-h1 {
-  font-family:'Syne',sans-serif;
-  font-weight:800;
-  font-size:clamp(1.8rem,4vw,2.6rem);
-  line-height:1.15;
-  letter-spacing:-0.03em;
-  color:var(--text);
-}
-h1 em { font-style:normal; color:var(--volt); }
-.hero-lead {
-  font-size:0.82rem;
-  color:var(--muted);
-  line-height:1.7;
-  max-width:46ch;
-}
-.hero-lead strong { color:var(--text); font-weight:400; }
-.hero-cta { display:flex; gap:8px; flex-wrap:wrap; }
-.btn {
-  display:inline-flex; align-items:center; gap:8px;
-  padding:9px 16px; border-radius:10px; border:1px solid var(--border);
-  background:rgba(255,255,255,.05); color:var(--text);
-  font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.06em;
-  cursor:pointer; transition:background 0.15s, border-color 0.15s, box-shadow 0.2s;
-  text-transform:lowercase;
-}
-.btn:hover { background:rgba(255,255,255,.09); }
-.btn.primary {
-  background:linear-gradient(135deg,rgba(107,240,255,.15),rgba(169,255,122,.1));
-  border-color:rgba(107,240,255,.25);
-}
-.btn.primary:hover {
-  background:linear-gradient(135deg,rgba(107,240,255,.22),rgba(169,255,122,.16));
-  box-shadow:0 0 20px rgba(107,240,255,.12);
-}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 950px){ .grid{grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 640px){ .grid{grid-template-columns: 1fr;} }
 
-/* hero right — clock embed */
-.hero-right {
-  border-left:1px solid var(--border);
-  background: linear-gradient(180deg,#0c0c0c 0%,#080808 100%);
-  position:relative;
-  overflow:hidden;
-}
-@media(max-width:860px){
-  .hero-right{ border-left:none; border-top:1px solid var(--border); }
-}
+    .tool{
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+      min-height: 138px;
+    }
+    .tool:hover{background: rgba(255,255,255,.055)}
+    .tool .kicker{
+      display:flex; align-items:center; gap:8px;
+      color:var(--soft);
+      font-size:12px;
+      letter-spacing:.35px;
+      text-transform: lowercase;
+    }
+    .chip{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+    }
+    .tool h3{margin:10px 0 6px; font-size:16px}
+    .tool p{margin:0; color:var(--muted); font-size:13px; max-width: 58ch}
+    .tool .link{
+      margin-top:12px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      color: rgba(255,255,255,.78);
+      font-weight:600;
+      font-size:13px;
+    }
+    .arrow{opacity:.75}
+    .tool:after{
+      content:"";
+      position:absolute;
+      inset:auto -60px -80px auto;
+      width:160px; height:160px;
+      background: radial-gradient(circle at 30% 30%, rgba(107,240,255,.18), transparent 60%),
+                  radial-gradient(circle at 70% 70%, rgba(169,255,122,.14), transparent 60%);
+      transform: rotate(18deg);
+      pointer-events:none;
+    }
 
-/* clock embed styles — scoped to .clock-embed */
-.clock-embed {
-  padding:1.5rem;
-  display:flex;
-  flex-direction:column;
-  height:100%;
-  min-height:420px;
-}
+    .twocol{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 900px){ .twocol{grid-template-columns:1fr;} }
 
-.ce-label {
-  font-size:0.58rem; letter-spacing:0.2em; text-transform:uppercase;
-  color:rgba(255,255,255,.2); margin-bottom:1.1rem;
-  display:flex; align-items:center; gap:8px;
-}
-.ce-label::after {
-  content:''; flex:1; height:1px; background:rgba(255,255,255,.06);
-}
+    .pad{padding:16px}
+    .list{margin:0; padding-left:18px; color:var(--muted); font-size:14px}
+    .list li{margin:8px 0}
 
-/* SLOT HOUSING */
-.slot-housing {
-  background:linear-gradient(180deg,#181818 0%,#0d0d0d 100%);
-  border:1px solid #222;
-  padding:1.2rem 1rem 1rem;
-  position:relative; overflow:hidden;
-  flex-shrink:0;
-}
-.slot-housing::before {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 50% 70%, rgba(232,255,71,.14) 0%, transparent 65%);
-  transition:background 0.8s; pointer-events:none;
-}
-.slot-housing.warning::before { background:radial-gradient(ellipse at 50% 70%, rgba(255,170,0,.15) 0%, transparent 65%); }
-.slot-housing.danger::before  { background:radial-gradient(ellipse at 50% 70%, rgba(255,51,51,.18) 0%, transparent 65%); }
-.slot-scanlines {
-  position:absolute; inset:0; pointer-events:none; z-index:15;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.07) 3px,rgba(0,0,0,.07) 4px);
-}
-.slot-label-sm {
-  font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase;
-  color:rgba(255,255,255,.18); text-align:center; margin-bottom:0.8rem; position:relative;
-}
-.reel-track { display:flex; align-items:center; justify-content:center; gap:2px; position:relative; }
-.reel-dollar {
-  font-family:'Bebas Neue',sans-serif; font-size:1.9rem; color:#e8ff47;
-  align-self:center; opacity:0.6; margin-right:2px; transition:color 0.5s;
-}
-.slot-housing.warning .reel-dollar { color:#ffaa00; }
-.slot-housing.danger  .reel-dollar { color:#ff3333; }
-.reel-dot {
-  font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#e8ff47;
-  height:var(--reel-h); display:flex; align-items:flex-end; padding-bottom:7px;
-  opacity:0.5; transition:color 0.5s;
-}
-.slot-housing.warning .reel-dot { color:#ffaa00; }
-.slot-housing.danger  .reel-dot { color:#ff3333; }
-.reel-comma {
-  font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:#e8ff47;
-  height:var(--reel-h); display:flex; align-items:flex-end; padding-bottom:8px;
-  opacity:0.35; transition:color 0.5s; width:10px; justify-content:center;
-}
-.slot-housing.warning .reel-comma { color:#ffaa00; }
-.slot-housing.danger  .reel-comma { color:#ff3333; }
-.reel-window {
-  width:50px; height:var(--reel-h); overflow:hidden; position:relative;
-  background:#040404; border:1px solid #252525;
-  box-shadow: inset 0 3px 10px rgba(0,0,0,.95), inset 0 -3px 10px rgba(0,0,0,.95);
-  border-radius:3px; flex-shrink:0;
-}
-.reel-window.cents { width:40px; height:calc(var(--reel-h) * 0.72); align-self:flex-end; margin-bottom:7px; }
-.reel-window::before,.reel-window::after {
-  content:''; position:absolute; left:0; right:0; height:30%; z-index:10; pointer-events:none;
-}
-.reel-window::before { top:0; background:linear-gradient(180deg,rgba(0,0,0,.95) 0%,transparent 100%); }
-.reel-window::after  { bottom:0; background:linear-gradient(0deg,rgba(0,0,0,.95) 0%,transparent 100%); }
-.reel-highlight {
-  position:absolute; top:50%; left:0; right:0; height:1px; transform:translateY(-50%);
-  background:rgba(232,255,71,.08); z-index:11; pointer-events:none; transition:background 0.5s;
-}
-.slot-housing.warning .reel-highlight { background:rgba(255,170,0,.08); }
-.slot-housing.danger  .reel-highlight { background:rgba(255,51,51,.1); }
-.reel-strip { display:flex; flex-direction:column; align-items:center; will-change:transform; }
-.reel-digit {
-  height:var(--reel-h); width:100%; display:flex; align-items:center; justify-content:center;
-  font-family:'Bebas Neue',sans-serif; font-size:3.4rem; line-height:1;
-  color:#e8ff47; transition:color 0.5s; flex-shrink:0;
-  text-shadow:0 0 16px rgba(232,255,71,.25);
-}
-.reel-window.cents .reel-digit { height:calc(var(--reel-h)*0.72); font-size:2.5rem; }
-.slot-housing.warning .reel-digit { color:#ffaa00; text-shadow:0 0 16px rgba(255,170,0,.25); }
-.slot-housing.danger  .reel-digit { color:#ff3333; text-shadow:0 0 16px rgba(255,51,51,.25); }
-
-.housing-footer {
-  display:flex; align-items:center; justify-content:space-between; margin-top:0.8rem;
-}
-.running-indicator {
-  display:flex; align-items:center; gap:6px;
-  font-size:0.58rem; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,.28);
-}
-.pulse-dot {
-  width:4px; height:4px; border-radius:50%; background:#e8ff47;
-  animation:pulse 1s ease infinite; flex-shrink:0;
-}
-.pulse-dot.paused { background:#333; animation:none; }
-.slot-housing.warning .pulse-dot { background:#ffaa00; }
-.slot-housing.danger  .pulse-dot { background:#ff3333; }
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.2;transform:scale(.6)}}
-.timer-sm {
-  font-family:'Bebas Neue',sans-serif; font-size:1.15rem; letter-spacing:0.1em;
-  color:rgba(255,255,255,.25); font-variant-numeric:tabular-nums;
-}
-
-/* progress bar */
-.prog-track { height:1px; background:#1a1a1a; }
-.prog-fill { height:100%; width:0; background:#e8ff47; transition:background 0.5s; }
-.prog-fill.running { animation:barP 1.6s ease-in-out infinite; }
-@keyframes barP{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
-
-/* setup / clock panels inside embed */
-.ce-setup { display:flex; flex-direction:column; gap:0.9rem; flex:1; padding-top:0.5rem; }
-.ce-inputs { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; }
-.ce-field { display:flex; flex-direction:column; gap:0.3rem; }
-.ce-field label { font-size:0.58rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,.3); }
-.ce-field input {
-  background:#0a0a0a; border:1px solid #222; color:var(--text);
-  font-family:'DM Mono',monospace; font-size:0.95rem;
-  padding:0.55rem 0.75rem; outline:none; width:100%;
-  transition:border-color 0.2s, box-shadow 0.2s;
-}
-.ce-field input:focus { border-color:#e8ff47; box-shadow:0 0 0 2px rgba(232,255,71,.1); }
-.ce-field input::placeholder { color:#333; }
-.ce-preview {
-  font-size:0.62rem; color:#444; min-height:1rem; transition:color 0.3s;
-}
-.ce-preview.active { color:#8aaa1a; }
-.ce-start {
-  background:#e8ff47; color:#000; border:none;
-  font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:0.12em;
-  padding:0.7rem; cursor:pointer; transition:background 0.2s, box-shadow 0.2s;
-  margin-top:auto;
-}
-.ce-start:hover { background:#f5ff6e; box-shadow:0 0 20px rgba(232,255,71,.2); }
-.ce-start:disabled { background:#1a1a1a; color:#333; cursor:not-allowed; box-shadow:none; }
-
-/* stats + controls inside embed */
-.ce-stats {
-  display:grid; grid-template-columns:repeat(3,1fr);
-  border:1px solid #1e1e1e; border-top:none; border-bottom:none;
-}
-.ce-stat { padding:0.6rem 0.3rem; text-align:center; border-right:1px solid #1e1e1e; }
-.ce-stat:last-child{ border-right:none; }
-.ce-stat-v { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--text); }
-.ce-stat-l { font-size:0.55rem; letter-spacing:0.08em; text-transform:uppercase; color:#444; }
-.ce-controls {
-  display:grid; grid-template-columns:1fr 1fr 1fr;
-  border:1px solid #1e1e1e;
-}
-.ce-btn {
-  background:#0f0f0f; border:none; border-right:1px solid #1e1e1e;
-  color:rgba(255,255,255,.6); font-family:'DM Mono',monospace;
-  font-size:0.6rem; letter-spacing:0.08em; text-transform:uppercase;
-  padding:0.65rem; cursor:pointer; transition:background 0.15s;
-}
-.ce-btn:last-child{border-right:none;}
-.ce-btn:hover{background:#1a1a1a;}
-.ce-btn.p{color:#e8ff47;}
-.ce-ticker {
-  background:#080808; border:1px solid #1e1e1e; border-top:none;
-  padding:0.4rem 0.75rem; font-size:0.58rem; color:#333;
-  display:flex; justify-content:space-between;
-}
-.ce-milestones {
-  border:1px solid #1e1e1e; padding:0.8rem;
-  background:#0a0a0a; margin-top:0.5rem; flex:1;
-  overflow:hidden;
-}
-.ce-ms-label {
-  font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase;
-  color:#333; margin-bottom:0.6rem;
-}
-.ms-item {
-  display:flex; justify-content:space-between; align-items:center;
-  font-size:0.65rem; color:#333; padding:0.25rem 0;
-  border-bottom:1px solid #111; transition:color 0.3s;
-}
-.ms-item:last-child{border-bottom:none;}
-.ms-item.reached{color:rgba(255,255,255,.7);}
-.ms-item.reached .ms-mark{color:#e8ff47;}
-.ms-mark{font-size:0.58rem;}
-.ce-share {
-  display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;
-  margin-top:0.5rem;
-}
-.ce-share-btn {
-  background:transparent; border:1px solid #1e1e1e; color:#333;
-  font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.08em;
-  text-transform:uppercase; padding:0.55rem; cursor:pointer;
-  transition:border-color 0.2s, color 0.2s;
-}
-.ce-share-btn:hover{border-color:#e8ff47;color:#e8ff47;}
-.ce-new {
-  background:transparent; border:none; color:#2a2a2a;
-  font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.08em;
-  text-transform:uppercase; padding:0.5rem; cursor:pointer;
-  width:100%; text-align:center; transition:color 0.2s; margin-top:0.2rem;
-}
-.ce-new:hover{color:rgba(255,255,255,.4);}
-
-/* clock panel hidden by default */
-.ce-clock { display:none; flex-direction:column; flex:1; }
-.ce-clock.vis { display:flex; }
-
-/* ── SECTION HEADINGS ── */
-.sec-head {
-  display:flex; align-items:flex-end; justify-content:space-between;
-  gap:12px; flex-wrap:wrap; margin:36px 0 14px;
-  padding-bottom:12px; border-bottom:1px solid var(--border);
-}
-.sec-head h2 {
-  font-family:'Syne',sans-serif; font-weight:700;
-  font-size:1rem; letter-spacing:0.02em; color:var(--text);
-}
-.sec-head-sub { font-size:0.68rem; color:var(--muted); }
-.sec-mono { font-family:'DM Mono',monospace; font-size:0.65rem; color:var(--soft); }
-
-/* ── TOOL GRID ── */
-.grid {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-@media(max-width:920px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:580px){.grid{grid-template-columns:1fr}}
-
-.tool-card {
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  background:rgba(255,255,255,.03);
-  padding:1.1rem;
-  position:relative; overflow:hidden;
-  transition:background 0.15s, border-color 0.2s;
-  display:flex; flex-direction:column; gap:0.5rem;
-  min-height:130px;
-}
-.tool-card:hover { background:rgba(255,255,255,.05); border-color:var(--border-hi); }
-.tool-card::after {
-  content:''; position:absolute; inset:auto -50px -60px auto;
-  width:130px; height:130px;
-  background:radial-gradient(circle, var(--volt-glow), transparent 65%);
-  pointer-events:none;
-}
-.tool-card.live::after { background:radial-gradient(circle, rgba(232,255,71,.12), transparent 65%); }
-.tool-card.coming { opacity:0.55; pointer-events:none; }
-.chip-row { display:flex; gap:5px; flex-wrap:wrap; }
-.chip {
-  font-size:0.6rem; letter-spacing:0.08em; text-transform:lowercase;
-  padding:3px 7px; border-radius:999px;
-  border:1px solid var(--border); background:rgba(0,0,0,.2); color:var(--muted);
-}
-.chip.live { border-color:rgba(232,255,71,.25); color:rgba(232,255,71,.7); background:rgba(232,255,71,.06); }
-.tool-card h3 {
-  font-family:'Syne',sans-serif; font-weight:700;
-  font-size:0.9rem; color:var(--text); letter-spacing:-0.01em;
-}
-.tool-card p { font-size:0.72rem; color:var(--muted); line-height:1.55; flex:1; }
-.tool-link {
-  display:inline-flex; gap:6px; align-items:center;
-  font-size:0.68rem; color:rgba(255,255,255,.6); font-weight:600;
-  transition:color 0.15s;
-}
-.tool-card:hover .tool-link { color:var(--text); }
-.tool-coming-tag {
-  font-size:0.6rem; color:var(--soft); letter-spacing:0.08em; text-transform:uppercase;
-}
-
-/* ── PRINCIPLES ── */
-.principles-grid {
-  display:grid; grid-template-columns:1fr 1fr; gap:10px;
-}
-@media(max-width:640px){.principles-grid{grid-template-columns:1fr}}
-
-.principle-card {
-  border:1px solid var(--border); border-radius:var(--radius);
-  background:rgba(255,255,255,.025); padding:1.25rem;
-}
-.principle-card h3 {
-  font-family:'Syne',sans-serif; font-weight:700;
-  font-size:0.85rem; color:var(--text); margin-bottom:0.75rem;
-}
-.principle-list { list-style:none; display:flex; flex-direction:column; gap:0.5rem; }
-.principle-list li {
-  font-size:0.73rem; color:var(--muted); line-height:1.5;
-  padding-left:1rem; position:relative;
-}
-.principle-list li::before {
-  content:'→'; position:absolute; left:0;
-  color:var(--soft); font-size:0.65rem;
-}
-
-/* ── MANIFESTO STRIP ── */
-.manifesto {
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  background:rgba(255,255,255,.025);
-  padding:1.5rem 2rem;
-  display:flex; gap:2rem; flex-wrap:wrap; align-items:center;
-  margin:10px 0;
-}
-.manifesto-line {
-  font-size:0.72rem; color:var(--muted); line-height:1.6;
-  border-left:2px solid rgba(107,240,255,.2);
-  padding-left:1rem;
-  flex:1; min-width:200px;
-}
-.manifesto-line strong { color:var(--text); font-weight:400; }
-
-/* ── ROADMAP ── */
-.roadmap-card {
-  border:1px solid var(--border); border-radius:var(--radius);
-  background:rgba(255,255,255,.025); padding:1.25rem;
-}
-.roadmap-list { list-style:none; display:flex; flex-direction:column; }
-.roadmap-item {
-  display:flex; align-items:baseline; gap:1rem;
-  padding:0.6rem 0; border-bottom:1px solid var(--border);
-  font-size:0.73rem; color:var(--muted);
-}
-.roadmap-item:last-child{border-bottom:none;}
-.roadmap-item .slug {
-  font-family:'DM Mono',monospace; font-size:0.68rem;
-  color:rgba(255,255,255,.5); white-space:nowrap; flex-shrink:0;
-}
-.roadmap-item .desc { color:var(--muted); }
-.status-dot {
-  width:5px; height:5px; border-radius:50%; flex-shrink:0;
-}
-.status-dot.live { background:var(--green); box-shadow:0 0 6px rgba(169,255,122,.5); }
-.status-dot.soon { background:var(--volt); opacity:0.5; }
-.status-dot.idea { background:var(--soft); opacity:0.4; }
-
-/* ── CONTACT ── */
-.contact-card {
-  border:1px solid var(--border); border-radius:var(--radius);
-  background:rgba(255,255,255,.025); padding:1.25rem 1.5rem;
-}
-.contact-card p { font-size:0.75rem; color:var(--muted); line-height:1.7; }
-.contact-card a { color:var(--volt); border-bottom:1px solid rgba(107,240,255,.25); transition:opacity 0.15s; }
-.contact-card a:hover { opacity:0.75; }
-
-/* ── FOOTER ── */
-.footer {
-  margin-top:48px; padding-top:16px;
-  border-top:1px solid var(--border);
-  display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
-  font-size:0.65rem; color:var(--soft);
-}
-.footer a { color:var(--muted); transition:color 0.15s; }
-.footer a:hover { color:var(--text); }
-
-/* ── TOAST ── */
-.toast {
-  position:fixed; bottom:1.5rem; left:50%;
-  transform:translateX(-50%) translateY(1.5rem);
-  background:#e8ff47; color:#000;
-  font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.08em;
-  padding:0.5rem 1.1rem; opacity:0;
-  transition:opacity 0.25s, transform 0.25s; pointer-events:none; z-index:99999;
-}
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeUp {
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
-}
-.fade-in { opacity:0; animation:fadeUp 0.5s ease forwards; }
-.delay-1 { animation-delay:0.1s; }
-.delay-2 { animation-delay:0.2s; }
-.delay-3 { animation-delay:0.3s; }
-</style>
+    .footer{
+      margin-top:44px;
+      color: var(--muted);
+      font-size: 13px;
+      display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+    .footer a{color:rgba(255,255,255,.75)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  </style>
 </head>
 
 <body>
-<div class="wrap">
-
-  <!-- NAV -->
-  <header class="nav fade-in">
-    <div class="brand">
-      <div class="mark"></div>
-      <div class="brand-text">
-        <div class="brand-name">voltmeadow</div>
-        <div class="brand-sub">a meadow of small tools, charged with potential</div>
-      </div>
-    </div>
-    <nav class="nav-links">
-      <a href="#tools">tools</a>
-      <a href="#principles">principles</a>
-      <a href="#roadmap">roadmap</a>
-      <a href="#contact">contact</a>
-    </nav>
-  </header>
-
-  <!-- HERO -->
-  <section class="hero fade-in delay-1">
-    <div class="hero-inner">
-
-      <!-- LEFT: copy -->
-      <div class="hero-left">
-        <div class="badge">
-          <span class="badge-dot"></span>
-          small tools · no accounts · no fluff
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <div><b>voltmeadow</b></div>
+          <div style="color:var(--muted); font-size:13px;">a meadow of small tools, charged with potential</div>
         </div>
-        <h1>built once.<br><em>works quietly.</em></h1>
-        <p class="hero-lead">
-          voltmeadow is a growing collection of practical utilities that solve
-          <strong>real, recurring friction</strong> — without demanding your attention,
-          your data, or a subscription to find out if they're useful.
-          <br><br>
-          No dashboards. No onboarding flows. No content treadmill.
-          Just tools that do one thing and keep doing it.
+      </div>
+
+      <nav class="nav" aria-label="primary">
+        <a href="#tools">tools</a>
+        <a href="#principles">principles</a>
+        <a href="#now-growing">now growing</a>
+        <a href="#contact">contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-label="intro">
+        <div class="hero-inner">
+          <div>
+            <div class="tag"><span class="dot"></span><span>small, stable, low-maintenance systems</span></div>
+            <h1>build once, use quietly, keep working</h1>
+            <p class="lead">
+              voltmeadow is a collection of practical utilities—language tools, gentle automations, and small instruments that reduce friction
+              without demanding attention
+            </p>
+
+            <div class="cta">
+              <a class="btn primary" href="#tools">browse tools</a>
+              <a class="btn" href="#now-growing">see what’s next</a>
+              <a class="btn" href="#contact">get in touch</a>
+            </div>
+          </div>
+
+          <aside class="card side" aria-label="status">
+            <div class="mini">
+              <h3>status</h3>
+              <b>seed stage</b>
+              <p>this meadow grows in small cycles, with a bias toward stability</p>
+            </div>
+
+            <div class="mini">
+              <h3>design rule</h3>
+              <b>boring over brittle</b>
+              <p>simple inputs, simple outputs, minimal dependencies</p>
+            </div>
+
+            <div class="mini">
+              <h3>platform</h3>
+              <b class="mono">voltmeadow.com</b>
+              <p>built for fast load, low cost, and steady iteration</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <div class="section-head" id="tools">
+        <div>
+          <h2>tools</h2>
+          <p>small utilities with strong slugs and obvious purpose</p>
+        </div>
+        <p class="mono" style="margin:0; color:var(--soft);">/tools/&lt;name&gt;</p>
+      </div>
+
+      <section class="grid" aria-label="tools grid">
+        <!-- replace # with real tool links later (ex: /tools/japanese-sign-decoder) -->
+        <a class="card tool" href="#" aria-label="tool placeholder 1">
+          <div class="kicker">
+            <span class="chip">language</span>
+            <span class="chip">decoder</span>
+          </div>
+          <h3>japanese sign decoder</h3>
+          <p>turn signage and UI wording into plain meaning + nuance</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 2">
+          <div class="kicker">
+            <span class="chip">study</span>
+            <span class="chip">anki</span>
+          </div>
+          <h3>kanji lattice exporter</h3>
+          <p>generate a tight memory network and export to flashcards</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 3">
+          <div class="kicker">
+            <span class="chip">planner</span>
+            <span class="chip">calculator</span>
+          </div>
+          <h3>stay window tracker</h3>
+          <p>simple date math for travel windows and re-entry planning</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 4">
+          <div class="kicker">
+            <span class="chip">text</span>
+            <span class="chip">tone</span>
+          </div>
+          <h3>message polisher</h3>
+          <p>make writing calm, neutral, and readable without changing intent</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 5">
+          <div class="kicker">
+            <span class="chip">generator</span>
+            <span class="chip">ambient</span>
+          </div>
+          <h3>weather mood card</h3>
+          <p>generate simple atmosphere cards for journaling or wallpapers</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+
+        <a class="card tool" href="#" aria-label="tool placeholder 6">
+          <div class="kicker">
+            <span class="chip">utility</span>
+            <span class="chip">converter</span>
+          </div>
+          <h3>tiny converter set</h3>
+          <p>fast converters you can bookmark and trust</p>
+          <span class="link">view tool <span class="arrow">→</span></span>
+        </a>
+      </section>
+
+      <div class="section-head" id="principles">
+        <div>
+          <h2>principles</h2>
+          <p>how the meadow stays usable over time</p>
+        </div>
+      </div>
+
+      <section class="twocol" aria-label="principles">
+        <div class="card pad">
+          <h3 style="margin:0 0 10px;">what gets built</h3>
+          <ul class="list">
+            <li>narrow tools for recurring annoyances</li>
+            <li>simple inputs, obvious outputs</li>
+            <li>stable dependencies</li>
+            <li>pages that can rank by intent, not promotion</li>
+          </ul>
+        </div>
+        <div class="card pad">
+          <h3 style="margin:0 0 10px;">what gets avoided</h3>
+          <ul class="list">
+            <li>features that create support burden</li>
+            <li>platform lock-in where possible</li>
+            <li>anything that needs a content treadmill</li>
+            <li>products that only work with constant attention</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="section-head" id="now-growing">
+        <div>
+          <h2>now growing</h2>
+          <p>a small public queue so the direction stays coherent</p>
+        </div>
+      </div>
+
+      <section class="card pad" aria-label="roadmap">
+        <ul class="list">
+          <li><span class="mono">/tools/japanese-sign-decoder</span> — first release</li>
+          <li><span class="mono">/tools/kanji-lattice-exporter</span> — export formats + presets</li>
+          <li><span class="mono">/tools/stay-window-tracker</span> — simple country profiles</li>
+        </ul>
+      </section>
+
+      <div class="section-head" id="contact">
+        <div>
+          <h2>contact</h2>
+          <p>feedback, bug reports, or quiet collaboration</p>
+        </div>
+      </div>
+
+      <section class="card pad" aria-label="contact">
+        <p style="margin:0; color:var(--muted);">
+          email:
+          <a class="mono" href="mailto:hello@voltmeadow.com">hello@voltmeadow.com</a>
+          <span style="color:var(--soft);"> (or swap this for a form later)</span>
         </p>
-        <div class="hero-cta">
-          <a href="#tools" class="btn primary">browse tools</a>
-          <a href="#roadmap" class="btn">what's coming</a>
+      </section>
+
+      <footer class="footer">
+        <div>© <span id="y"></span> voltmeadow</div>
+        <div>
+          <a href="#tools">tools</a> ·
+          <a href="#principles">principles</a> ·
+          <a href="#contact">contact</a>
         </div>
-      </div>
-
-      <!-- RIGHT: clock embed -->
-      <div class="hero-right">
-        <div class="clock-embed">
-          <div class="ce-label">featured tool — meeting cost clock</div>
-
-          <!-- SETUP -->
-          <div id="ceSetup" class="ce-setup">
-            <div class="slot-housing" id="slotHousingDemo">
-              <div class="slot-scanlines"></div>
-              <div class="slot-label-sm">total meeting cost</div>
-              <div class="reel-track" id="reelTrackDemo"></div>
-              <div class="housing-footer">
-                <div class="running-indicator">
-                  <div class="pulse-dot paused" id="pulseDotDemo"></div>
-                  <span id="runningLabelDemo">waiting</span>
-                </div>
-                <div class="timer-sm" id="timerDemo">00:00:00</div>
-              </div>
-            </div>
-            <div class="prog-track"><div class="prog-fill" id="progFillDemo"></div></div>
-
-            <div class="ce-inputs">
-              <div class="ce-field">
-                <label>Attendees</label>
-                <input type="number" id="ceAttendees" placeholder="8" min="1" max="500">
-              </div>
-              <div class="ce-field">
-                <label>Avg. Annual Salary ($)</label>
-                <input type="number" id="ceSalary" placeholder="75000" min="1">
-              </div>
-            </div>
-            <div class="ce-preview" id="cePreview">enter details to preview cost</div>
-            <button class="ce-start" id="ceStartBtn" disabled>Start The Clock</button>
-          </div>
-
-          <!-- CLOCK (hidden until started) -->
-          <div id="ceClock" class="ce-clock">
-            <div class="ce-stats">
-              <div class="ce-stat"><div class="ce-stat-v" id="ceStat1">—</div><div class="ce-stat-l">Attendees</div></div>
-              <div class="ce-stat"><div class="ce-stat-v" id="ceStat2">—</div><div class="ce-stat-l">Per Minute</div></div>
-              <div class="ce-stat"><div class="ce-stat-v" id="ceStat3">—</div><div class="ce-stat-l">Per Hour</div></div>
-            </div>
-            <div class="ce-controls">
-              <button class="ce-btn p" id="cePauseBtn" onclick="cePause()">Pause</button>
-              <button class="ce-btn" onclick="ceSnapshot()">Copy Snapshot</button>
-              <button class="ce-btn" onclick="ceReset()">Reset</button>
-            </div>
-            <div class="ce-ticker">
-              <span id="ceTick1">—</span><span id="ceTick2">—</span>
-            </div>
-            <div class="ce-milestones">
-              <div class="ce-ms-label">cost milestones</div>
-              <div id="ceMsList"></div>
-            </div>
-            <div class="ce-share">
-              <button class="ce-share-btn" onclick="ceShareLink()">Copy Share Link</button>
-              <button class="ce-share-btn" onclick="ceSnapshot()">Copy Summary</button>
-            </div>
-            <button class="ce-new" onclick="ceNew()">← new meeting</button>
-          </div>
-
-        </div><!-- /clock-embed -->
-      </div><!-- /hero-right -->
-    </div><!-- /hero-inner -->
-  </section>
-
-  <!-- TOOLS GRID -->
-  <div class="sec-head" id="tools">
-    <div>
-      <h2>tools</h2>
-      <span class="sec-head-sub">narrow, stable, obviously useful</span>
-    </div>
-    <span class="sec-mono">/tools/&lt;name&gt;</span>
+      </footer>
+    </main>
   </div>
 
-  <div class="grid fade-in delay-2">
-    <!-- Live tool -->
-    <a class="tool-card live" href="/tools/meeting-cost-clock">
-      <div class="chip-row">
-        <span class="chip live">live</span>
-        <span class="chip">workplace</span>
-        <span class="chip">calculator</span>
-      </div>
-      <h3>meeting cost clock</h3>
-      <p>watch money leave in real time. slot-machine reels count up the cost of this meeting as it happens. share the link in your calendar invite.</p>
-      <span class="tool-link">open tool →</span>
-    </a>
-
-    <!-- Coming soon cards -->
-    <div class="tool-card coming">
-      <div class="chip-row"><span class="chip">calculator</span><span class="chip">personal</span></div>
-      <h3>true cost of a purchase</h3>
-      <p>not just the price — hours of work, opportunity cost, and whether it actually fits your month.</p>
-      <span class="tool-coming-tag">coming soon</span>
-    </div>
-
-    <div class="tool-card coming">
-      <div class="chip-row"><span class="chip">household</span><span class="chip">fairness</span></div>
-      <h3>chore splitter</h3>
-      <p>enter tasks, time estimates, and preferences — get a fair split with a shareable link. no more sunday negotiations.</p>
-      <span class="tool-coming-tag">coming soon</span>
-    </div>
-
-    <div class="tool-card coming">
-      <div class="chip-row"><span class="chip">finance</span><span class="chip">audit</span></div>
-      <h3>subscription audit</h3>
-      <p>manually log your subscriptions, see the real monthly total, and get a clear "probably cancelling" list.</p>
-      <span class="tool-coming-tag">coming soon</span>
-    </div>
-
-    <div class="tool-card coming">
-      <div class="chip-row"><span class="chip">food</span><span class="chip">calculator</span></div>
-      <h3>price per unit</h3>
-      <p>standing in the cereal aisle comparing three sizes. this settles it in three taps. no app needed.</p>
-      <span class="tool-coming-tag">coming soon</span>
-    </div>
-
-    <div class="tool-card coming">
-      <div class="chip-row"><span class="chip">health</span><span class="chip">visual</span></div>
-      <h3>calorie density chart</h3>
-      <p>see which foods let you eat more volume for fewer calories. visual, fast, no account.</p>
-      <span class="tool-coming-tag">coming soon</span>
-    </div>
-  </div>
-
-  <!-- MANIFESTO STRIP -->
-  <div class="manifesto fade-in delay-2">
-    <div class="manifesto-line">
-      <strong>tools, not platforms.</strong><br>
-      every page on voltmeadow does one thing and does it without asking you to sign up, verify your email, or sit through an onboarding modal.
-    </div>
-    <div class="manifesto-line">
-      <strong>deterministic over generative.</strong><br>
-      these tools apply logic, not language models. the answer to "which cereal is cheaper per gram" doesn't need an AI. it needs arithmetic.
-    </div>
-    <div class="manifesto-line">
-      <strong>built to last, not to grow.</strong><br>
-      a tool that works in 2026 should still work in 2031. no backend, no dependencies, no silent breakage when a third-party API changes its terms.
-    </div>
-  </div>
-
-  <!-- PRINCIPLES -->
-  <div class="sec-head" id="principles">
-    <div>
-      <h2>principles</h2>
-      <span class="sec-head-sub">how the meadow stays usable</span>
-    </div>
-  </div>
-
-  <div class="principles-grid fade-in delay-2">
-    <div class="principle-card">
-      <h3>what gets built</h3>
-      <ul class="principle-list">
-        <li>narrow tools for recurring, real annoyances</li>
-        <li>simple inputs and obvious outputs</li>
-        <li>pages that earn traffic by being useful, not by being promoted</li>
-        <li>things that run entirely in the browser where possible</li>
-        <li>one-time value, not dependency value</li>
-      </ul>
-    </div>
-    <div class="principle-card">
-      <h3>what gets avoided</h3>
-      <ul class="principle-list">
-        <li>features that require ongoing maintenance or support</li>
-        <li>tools that only work while you're subscribed to a third-party</li>
-        <li>anything that needs a content treadmill to stay relevant</li>
-        <li>accounts, tracking, or data collection</li>
-        <li>solving problems that ChatGPT already handles better in a conversation</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- ROADMAP -->
-  <div class="sec-head" id="roadmap">
-    <div>
-      <h2>roadmap</h2>
-      <span class="sec-head-sub">public queue, roughly in order</span>
-    </div>
-  </div>
-
-  <div class="roadmap-card fade-in delay-3">
-    <ul class="roadmap-list">
-      <li class="roadmap-item">
-        <div class="status-dot live"></div>
-        <span class="slug">/tools/meeting-cost-clock</span>
-        <span class="desc">slot-machine cost counter — live</span>
-      </li>
-      <li class="roadmap-item">
-        <div class="status-dot soon"></div>
-        <span class="slug">/tools/true-cost</span>
-        <span class="desc">real cost of a purchase — hours worked, not just dollars</span>
-      </li>
-      <li class="roadmap-item">
-        <div class="status-dot soon"></div>
-        <span class="slug">/tools/chore-split</span>
-        <span class="desc">fair household task allocation with shareable result</span>
-      </li>
-      <li class="roadmap-item">
-        <div class="status-dot soon"></div>
-        <span class="slug">/tools/sub-audit</span>
-        <span class="desc">manual subscription tracker — no bank connection required</span>
-      </li>
-      <li class="roadmap-item">
-        <div class="status-dot idea"></div>
-        <span class="slug">/tools/unit-price</span>
-        <span class="desc">compare up to 4 products by price per unit — grocery aisle tool</span>
-      </li>
-      <li class="roadmap-item">
-        <div class="status-dot idea"></div>
-        <span class="slug">/tools/calorie-density</span>
-        <span class="desc">visual food volume-per-calorie comparison</span>
-      </li>
-    </ul>
-  </div>
-
-  <!-- CONTACT -->
-  <div class="sec-head" id="contact">
-    <div>
-      <h2>contact</h2>
-      <span class="sec-head-sub">feedback, suggestions, quiet collaboration</span>
-    </div>
-  </div>
-
-  <div class="contact-card fade-in delay-3">
-    <p>
-      if a tool broke, a tool should exist, or you have thoughts —
-      <a href="mailto:hello@voltmeadow.com">hello@voltmeadow.com</a>.
-      no pitch decks or partnership proposals, please.
-      <br><br>
-      this is a one-person operation built in spare time.
-      response time is honest, not fast.
-    </p>
-  </div>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <span>© <span id="yr"></span> voltmeadow — all tools run in your browser. no tracking.</span>
-    <span>
-      <a href="#tools">tools</a> ·
-      <a href="#principles">principles</a> ·
-      <a href="#roadmap">roadmap</a> ·
-      <a href="#contact">contact</a>
-    </span>
-  </footer>
-
-</div><!-- /wrap -->
-<div class="toast" id="toast"></div>
-
-<script>
-// ── CLOCK ENGINE (embedded) ──
-const REEL_H_F = 80, REEL_H_C = 57, DPL = 10, LOOPS = 4;
-
-let rafId=null, startTs=null, pausedAt=null, totalPausedMs=0;
-let paused=false, cps=0, attendees=0, salary=0;
-let milestones=[], reached=new Set(), lastSec=-1, curDD=1;
-let rPos={};
-
-const ceA=document.getElementById('ceAttendees');
-const ceS=document.getElementById('ceSalary');
-
-function calcCPS(a,s){return(s/52/40/3600)*a;}
-function fmtD(n){if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(1)+'k';return'$'+n.toFixed(2);}
-function fmtT(s){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;return[h,m,sc].map(v=>String(v).padStart(2,'0')).join(':');}
-
-function ceUpdatePreview(){
-  const a=parseInt(ceA.value),s=parseInt(ceS.value);
-  const prev=document.getElementById('cePreview'),btn=document.getElementById('ceStartBtn');
-  if(a>0&&s>0){
-    const c=calcCPS(a,s);
-    prev.textContent='≈ '+fmtD(c*60)+'/min · '+fmtD(c*3600)+'/hr';
-    prev.classList.add('active');btn.disabled=false;
-  }else{
-    prev.textContent='enter details to preview cost';
-    prev.classList.remove('active');btn.disabled=true;
-  }
-}
-ceA.addEventListener('input',ceUpdatePreview);
-ceS.addEventListener('input',ceUpdatePreview);
-[ceA,ceS].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('ceStartBtn').disabled)ceStart();}));
-
-function makeCeReel(id,isCents){
-  const win=document.createElement('div');
-  win.className='reel-window'+(isCents?' cents':'');win.id='crw-'+id;
-  const hl=document.createElement('div');hl.className='reel-highlight';win.appendChild(hl);
-  const strip=document.createElement('div');strip.className='reel-strip';strip.id='crs-'+id;
-  for(let l=0;l<LOOPS;l++)for(let d=0;d<10;d++){
-    const cell=document.createElement('div');cell.className='reel-digit';cell.textContent=d;strip.appendChild(cell);
-  }
-  win.appendChild(strip);
-  rPos[id]=(isCents?REEL_H_C:REEL_H_F)*DPL;
-  return win;
-}
-
-function buildCeReels(n){
-  const track=document.getElementById('reelTrackDemo');track.innerHTML='';rPos={};
-  const dollar=document.createElement('div');dollar.className='reel-dollar';dollar.textContent='$';track.appendChild(dollar);
-  for(let i=0;i<n;i++){
-    if(i>0&&(n-i)%3===0){const c=document.createElement('div');c.className='reel-comma';c.textContent=',';track.appendChild(c);}
-    track.appendChild(makeCeReel('d'+i,false));
-  }
-  const dot=document.createElement('div');dot.className='reel-dot';dot.textContent='.';track.appendChild(dot);
-  track.appendChild(makeCeReel('c0',true));
-  track.appendChild(makeCeReel('c1',true));
-}
-
-function posCeReel(id,digit,isCents,instant){
-  const strip=document.getElementById('crs-'+id);if(!strip)return;
-  const h=isCents?REEL_H_C:REEL_H_F;
-  const base=DPL*h;
-  let target=base+Math.floor(digit)*h+(digit%1)*h;
-  let cur=rPos[id]!==undefined?rPos[id]:target;
-  if(instant){cur=target;}else{
-    let diff=target-cur;const rev=DPL*h;
-    if(diff<0)diff+=rev;if(diff>rev*0.9)diff-=rev;
-    cur+=diff*(isCents?0.35:0.25);
-    if(cur>(LOOPS-1)*DPL*h)cur-=DPL*h;
-    if(cur<h)cur+=DPL*h;
-  }
-  rPos[id]=cur;strip.style.transform='translateY(-'+cur+'px)';
-}
-
-function updateCeReels(cost,instant){
-  const dollars=Math.floor(cost),cents=(cost-dollars)*100;
-  const dStr=String(dollars),needed=Math.max(1,dStr.length);
-  if(needed!==curDD){curDD=needed;buildCeReels(needed);}
-  const padded=dStr.padStart(needed,'0');
-  for(let i=0;i<needed;i++)posCeReel('d'+i,parseInt(padded[i]),false,instant);
-  posCeReel('c0',Math.floor(cents/10),true,instant);
-  posCeReel('c1',cents%10,true,instant);
-}
-
-function setCeColor(cost){
-  const h=document.getElementById('slotHousingDemo');
-  h.classList.remove('warning','danger');
-  if(cost>=500)h.classList.add('danger');
-  else if(cost>=100)h.classList.add('warning');
-}
-
-function buildCeMilestones(cph){
-  const raw=[10,25,50,100,250,500,1000,2500,5000,10000];
-  milestones=raw.filter(m=>m<=cph*8);
-  if(!milestones.length)milestones=[1,5,10];
-  const mx=milestones[milestones.length-1];
-  if(cph*2>mx)milestones.push(mx*5);
-  const list=document.getElementById('ceMsList');list.innerHTML='';
-  milestones.forEach(m=>{
-    const el=document.createElement('div');el.className='ms-item';el.id='cems-'+m;
-    el.innerHTML='<span>'+fmtD(m)+'</span><span class="ms-mark">not yet reached</span>';
-    list.appendChild(el);
-  });
-  reached.clear();
-}
-
-function checkCeMilestones(cost,sec){
-  milestones.forEach(m=>{
-    if(cost>=m&&!reached.has(m)){
-      reached.add(m);
-      const el=document.getElementById('cems-'+m);
-      if(el){el.classList.add('reached');el.querySelector('.ms-mark').textContent='at '+fmtT(sec);}
-    }
-  });
-}
-
-function ceRafLoop(ts){
-  if(!startTs)startTs=ts;
-  const elMs=(ts-startTs)-totalPausedMs,elSec=elMs/1000,cost=cps*elSec;
-  updateCeReels(cost,false);setCeColor(cost);
-  const whole=Math.floor(elSec);
-  if(whole!==lastSec){
-    lastSec=whole;
-    document.getElementById('timerDemo').textContent=fmtT(whole);
-    checkCeMilestones(cost,whole);
-  }
-  rafId=requestAnimationFrame(ceRafLoop);
-}
-
-function ceStart(){
-  attendees=parseInt(ceA.value);salary=parseInt(ceS.value);cps=calcCPS(attendees,salary);
-  document.getElementById('ceStat1').textContent=attendees;
-  document.getElementById('ceStat2').textContent=fmtD(cps*60);
-  document.getElementById('ceStat3').textContent=fmtD(cps*3600);
-  document.getElementById('ceTick1').textContent=fmtD(cps)+'/sec';
-  document.getElementById('ceTick2').textContent='proj/hr: '+fmtD(cps*3600);
-  buildCeMilestones(cps*3600);
-  curDD=1;buildCeReels(1);
-  // show slot housing in clock panel too
-  const setup=document.getElementById('ceSetup'),clock=document.getElementById('ceClock');
-  // move slot housing to clock
-  setup.style.display='none';
-  clock.classList.add('vis');
-  document.getElementById('progFillDemo').classList.add('running');
-  document.getElementById('pulseDotDemo').classList.remove('paused');
-  document.getElementById('runningLabelDemo').textContent='running';
-  startTs=null;totalPausedMs=0;pausedAt=null;paused=false;lastSec=-1;
-  rafId=requestAnimationFrame(ceRafLoop);
-}
-document.getElementById('ceStartBtn').addEventListener('click',ceStart);
-
-function cePause(){
-  paused=!paused;
-  const btn=document.getElementById('cePauseBtn'),dot=document.getElementById('pulseDotDemo'),
-        lbl=document.getElementById('runningLabelDemo'),fill=document.getElementById('progFillDemo');
-  if(paused){
-    pausedAt=performance.now();cancelAnimationFrame(rafId);
-    btn.textContent='Resume';dot.classList.add('paused');lbl.textContent='paused';fill.classList.remove('running');
-  }else{
-    totalPausedMs+=performance.now()-pausedAt;pausedAt=null;
-    btn.textContent='Pause';dot.classList.remove('paused');lbl.textContent='running';fill.classList.add('running');
-    rafId=requestAnimationFrame(ceRafLoop);
-  }
-}
-
-function ceReset(){
-  cancelAnimationFrame(rafId);startTs=null;totalPausedMs=0;pausedAt=null;paused=false;lastSec=-1;curDD=1;
-  buildCeReels(1);updateCeReels(0,true);
-  document.getElementById('slotHousingDemo').classList.remove('warning','danger');
-  document.getElementById('timerDemo').textContent='00:00:00';
-  document.getElementById('cePauseBtn').textContent='Pause';
-  document.getElementById('pulseDotDemo').classList.remove('paused');
-  document.getElementById('runningLabelDemo').textContent='running';
-  document.getElementById('progFillDemo').classList.add('running');
-  reached.clear();
-  document.querySelectorAll('.ms-item').forEach(el=>{
-    el.classList.remove('reached');el.querySelector('.ms-mark').textContent='not yet reached';
-  });
-  rafId=requestAnimationFrame(ceRafLoop);
-}
-
-function ceNew(){
-  cancelAnimationFrame(rafId);startTs=null;
-  document.getElementById('ceClock').classList.remove('vis');
-  document.getElementById('ceSetup').style.display='flex';
-  document.getElementById('slotHousingDemo').classList.remove('warning','danger');
-  document.getElementById('pulseDotDemo').classList.add('paused');
-  document.getElementById('runningLabelDemo').textContent='waiting';
-  document.getElementById('progFillDemo').classList.remove('running');
-}
-
-function getCeElSec(){
-  if(!startTs)return 0;
-  return((paused?pausedAt:performance.now())-startTs-totalPausedMs)/1000;
-}
-function ceSnapshot(){
-  const s=Math.floor(getCeElSec()),c=cps*s;
-  const txt='Meeting Cost Snapshot\n──────────────────────\nAttendees:   '+attendees+'\nDuration:    '+fmtT(s)+'\nTotal Cost:  '+fmtD(c)+'\nCost/min:    '+fmtD(cps*60)+'\nCost/hr:     '+fmtD(cps*3600)+'\n──────────────────────\nvoltmeadow.com/tools/meeting-cost-clock';
-  navigator.clipboard.writeText(txt).then(()=>showToast('snapshot copied'));
-}
-function ceShareLink(){
-  const url=location.origin+'/tools/meeting-cost-clock?a='+attendees+'&s='+salary;
-  navigator.clipboard.writeText(url).then(()=>showToast('link copied'));
-}
-
-// init reels at zero
-window.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('yr').textContent=new Date().getFullYear();
-  buildCeReels(1);updateCeReels(0,true);
-});
-
-// toast
-function showToast(m){
-  const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-</script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
