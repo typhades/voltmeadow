@@ -1,465 +1,754 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>voltmeadow</title>
-  <meta name="description" content="voltmeadow is a small collection of practical tools—quiet systems, language utilities, and gentle automations." />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>voltmeadow</title>
+<meta name="description" content="A field of small, deterministic digital tools. Built once. Works quietly. No accounts, no noise.">
+<meta property="og:title" content="voltmeadow">
+<meta property="og:description" content="Open land charged with latent energy.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://voltmeadow.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="voltmeadow" />
-  <meta property="og:description" content="a meadow of practical tools—charged with potential" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://voltmeadow.com" />
+:root {
+  --bg:       #07090f;
+  --bg1:      #090c16;
+  --card:     #0c1020;
+  --card2:    #0e1328;
+  --line:     rgba(255,255,255,.07);
+  --line2:    rgba(255,255,255,.11);
 
-  <style>
-    :root{
-      --bg0:#07090f;
-      --bg1:#0b1020;
-      --card:#0f1630;
-      --line:rgba(255,255,255,.08);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.68);
-      --soft:rgba(255,255,255,.55);
+  --text:     rgba(255,255,255,.90);
+  --muted:    rgba(255,255,255,.52);
+  --soft:     rgba(255,255,255,.28);
+  --faint:    rgba(255,255,255,.12);
 
-      --a:#6bf0ff;   /* volt */
-      --b:#a9ff7a;   /* meadow */
-      --c:#b18cff;   /* dusk */
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 18px;
-    }
+  /* volt — electric blue */
+  --v:        #5badff;
+  --v-hi:     #82c4ff;
+  --v-lo:     rgba(91,173,255,.08);
+  --v-border: rgba(91,173,255,.18);
+  --v-glow:   rgba(91,173,255,.14);
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--text);
-      background:
-        radial-gradient(1000px 700px at 15% 10%, rgba(107,240,255,.12), transparent 60%),
-        radial-gradient(900px 600px at 85% 15%, rgba(169,255,122,.10), transparent 55%),
-        radial-gradient(700px 700px at 60% 90%, rgba(177,140,255,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x:hidden;
-    }
+  /* meadow — charged yellow-green */
+  --m:        #b8f020;
+  --m-lo:     rgba(184,240,32,.07);
+  --m-border: rgba(184,240,32,.16);
+  --m-glow:   rgba(184,240,32,.10);
 
-    a{color:inherit; text-decoration:none}
-    a:hover{opacity:.92}
+  --r:  14px;
+  --r2: 18px;
+}
 
-    .wrap{max-width:1100px; margin:0 auto; padding:28px 20px 64px}
-    .top{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:18px; padding:10px 0 24px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:12px;
-      letter-spacing:.2px;
-    }
-    .mark{
-      width:34px; height:34px; border-radius:12px;
-      background:
-        radial-gradient(14px 14px at 30% 30%, rgba(107,240,255,.95), rgba(107,240,255,.12)),
-        radial-gradient(16px 16px at 70% 70%, rgba(169,255,122,.9), rgba(169,255,122,.10)),
-        linear-gradient(135deg, rgba(177,140,255,.55), rgba(255,255,255,.06));
-      border:1px solid var(--line);
-      box-shadow: 0 8px 24px rgba(0,0,0,.35);
-    }
-    .brand b{font-weight:650}
-    .nav{
-      display:flex; gap:16px; flex-wrap:wrap; justify-content:flex-end;
-      color:var(--muted);
-      font-size:14px;
-    }
-    .nav a{padding:8px 10px; border-radius:12px}
-    .nav a:hover{background:rgba(255,255,255,.06)}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; -webkit-font-smoothing:antialiased; }
 
-    .hero{
-      position:relative;
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      box-shadow: var(--shadow);
-      padding:34px 24px;
-      overflow:hidden;
-    }
-    .hero:before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(600px 220px at 20% 0%, rgba(107,240,255,.18), transparent 60%),
-        radial-gradient(700px 260px at 80% 10%, rgba(169,255,122,.14), transparent 60%),
-        radial-gradient(520px 260px at 60% 110%, rgba(177,140,255,.14), transparent 60%);
-      pointer-events:none;
-      filter: blur(0px);
-    }
-    .hero-inner{position:relative; display:grid; grid-template-columns: 1.2fr .8fr; gap:24px}
-    @media (max-width: 900px){ .hero-inner{grid-template-columns:1fr} }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse 900px 500px at 20% -5%,  rgba(91,173,255,.08),  transparent 60%),
+    radial-gradient(ellipse 700px 500px at 85%  5%,  rgba(91,173,255,.05),  transparent 55%),
+    radial-gradient(ellipse 600px 700px at 60% 100%, rgba(184,240,32,.04),  transparent 55%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg1) 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-    h1{
-      margin:0 0 10px;
-      font-size: 40px;
-      line-height:1.15;
-      letter-spacing:-.6px;
-    }
-    .tag{
-      display:inline-flex; align-items:center; gap:8px;
-      font-size:13px; color:var(--muted);
-      border:1px solid var(--line);
-      background: rgba(0,0,0,.18);
-      padding:7px 10px; border-radius:999px;
-      margin-bottom:14px;
-    }
-    .dot{
-      width:8px; height:8px; border-radius:50%;
-      background: linear-gradient(135deg, var(--a), var(--b));
-      box-shadow: 0 0 18px rgba(107,240,255,.35);
-    }
-    .lead{
-      margin: 0 0 18px;
-      color: var(--muted);
-      max-width: 58ch;
-    }
-    .cta{
-      display:flex; gap:10px; flex-wrap:wrap;
-      margin-top:18px;
-    }
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      gap:10px;
-      padding:10px 14px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      font-weight: 600;
-      font-size:14px;
-    }
-    .btn:hover{background: rgba(255,255,255,.09)}
-    .btn.primary{
-      background: linear-gradient(135deg, rgba(107,240,255,.18), rgba(169,255,122,.12));
-      border-color: rgba(107,240,255,.22);
-    }
+a { color: inherit; text-decoration: none; }
 
-    .card{
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.04);
-      box-shadow: 0 10px 24px rgba(0,0,0,.25);
-    }
-    .side{
-      padding:16px;
-      display:grid; gap:12px;
-      align-content:start;
-    }
-    .side h3{margin:0; font-size:14px; color:var(--soft); font-weight:650; letter-spacing:.25px}
-    .mini{
-      border:1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(0,0,0,.18);
-      padding:12px;
-    }
-    .mini b{display:block; font-size:14px; margin-bottom:4px}
-    .mini p{margin:0; color:var(--muted); font-size:13px}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 22px 100px;
+}
 
-    .section{
-      margin-top:26px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:14px;
-    }
-    .section-head{
-      display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap;
-      margin-top:30px;
-    }
-    .section-head h2{
-      margin:0;
-      font-size:18px;
-      letter-spacing:.1px;
-    }
-    .section-head p{
-      margin:0;
-      color:var(--muted);
-      font-size:14px;
-    }
+/* ── NAV ── */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 26px 0 0; gap: 16px; flex-wrap: wrap;
+}
 
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:12px;
-    }
-    @media (max-width: 950px){ .grid{grid-template-columns: repeat(2, 1fr);} }
-    @media (max-width: 640px){ .grid{grid-template-columns: 1fr;} }
+.brand { display: flex; align-items: center; gap: 12px; }
 
-    .tool{
-      padding:16px;
-      position:relative;
-      overflow:hidden;
-      min-height: 138px;
-    }
-    .tool:hover{background: rgba(255,255,255,.055)}
-    .tool .kicker{
-      display:flex; align-items:center; gap:8px;
-      color:var(--soft);
-      font-size:12px;
-      letter-spacing:.35px;
-      text-transform: lowercase;
-    }
-    .chip{
-      font-size:11px;
-      padding:4px 8px;
-      border-radius: 999px;
-      border:1px solid var(--line);
-      background: rgba(0,0,0,.18);
-      color: var(--muted);
-    }
-    .tool h3{margin:10px 0 6px; font-size:16px}
-    .tool p{margin:0; color:var(--muted); font-size:13px; max-width: 58ch}
-    .tool .link{
-      margin-top:12px;
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      color: rgba(255,255,255,.78);
-      font-weight:600;
-      font-size:13px;
-    }
-    .arrow{opacity:.75}
-    .tool:after{
-      content:"";
-      position:absolute;
-      inset:auto -60px -80px auto;
-      width:160px; height:160px;
-      background: radial-gradient(circle at 30% 30%, rgba(107,240,255,.18), transparent 60%),
-                  radial-gradient(circle at 70% 70%, rgba(169,255,122,.14), transparent 60%);
-      transform: rotate(18deg);
-      pointer-events:none;
-    }
+.mark {
+  width: 36px; height: 36px; border-radius: 12px;
+  background:
+    radial-gradient(12px 12px at 32% 30%, rgba(91,173,255,.95),  rgba(91,173,255,.08)),
+    radial-gradient(14px 14px at 68% 72%, rgba(184,240,32,.85),  rgba(184,240,32,.06)),
+    linear-gradient(135deg, rgba(91,173,255,.12), rgba(0,0,0,.4));
+  border: 1px solid rgba(91,173,255,.2);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 8px 24px rgba(0,0,0,.5),
+    0 0 20px rgba(91,173,255,.08);
+  flex-shrink: 0;
+}
 
-    .twocol{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-    @media (max-width: 900px){ .twocol{grid-template-columns:1fr;} }
+.brand-text { line-height: 1.25; }
+.brand-name {
+  font-size: 0.88rem; font-weight: 600;
+  letter-spacing: -0.01em; color: var(--text);
+}
+.brand-tag {
+  font-size: 0.62rem; font-weight: 400;
+  color: var(--soft); letter-spacing: 0.02em;
+}
 
-    .pad{padding:16px}
-    .list{margin:0; padding-left:18px; color:var(--muted); font-size:14px}
-    .list li{margin:8px 0}
+.nav-links { display: flex; gap: 2px; }
+.nav-links a {
+  font-size: 0.72rem; font-weight: 400;
+  color: var(--muted); padding: 6px 12px;
+  border-radius: 8px;
+  transition: color .15s, background .15s;
+}
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,.05); }
 
-    .footer{
-      margin-top:44px;
-      color: var(--muted);
-      font-size: 13px;
-      display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
-      padding-top: 18px;
-      border-top: 1px solid var(--line);
-    }
-    .footer a{color:rgba(255,255,255,.75)}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-  </style>
+/* ── HERO ── */
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 20px;
+  align-items: start;
+  margin: 36px 0 0;
+  padding: 28px;
+  border: 1px solid var(--line2);
+  border-radius: var(--r2);
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.045) 0%, rgba(255,255,255,.018) 100%);
+  position: relative; overflow: hidden;
+}
+@media(max-width:860px){ .hero{ grid-template-columns:1fr; } }
+
+/* aurora tint behind hero */
+.hero::before {
+  content:'';
+  position:absolute; inset:-1px;
+  background:
+    radial-gradient(700px 240px at 10% -10%, rgba(91,173,255,.12),  transparent 60%),
+    radial-gradient(500px 240px at 90%  -5%, rgba(184,240,32,.07),  transparent 60%),
+    radial-gradient(400px 300px at 55% 120%, rgba(91,173,255,.08),  transparent 55%);
+  pointer-events: none;
+}
+
+.hero-left { position: relative; padding: 6px 0; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.62rem; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.2);
+  padding: 5px 10px; border-radius: 999px;
+  margin-bottom: 16px;
+}
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--v), var(--m));
+  box-shadow: 0 0 8px var(--v-glow);
+  animation: pulse 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 6px var(--v-glow); }
+  50%      { box-shadow: 0 0 14px rgba(91,173,255,.4), 0 0 24px rgba(184,240,32,.15); }
+}
+
+.hero h1 {
+  font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.hero-body {
+  font-size: 0.82rem; font-weight: 300;
+  color: var(--muted); line-height: 1.8;
+  max-width: 50ch; margin-bottom: 22px;
+}
+.hero-body strong { color: rgba(255,255,255,.7); font-weight: 500; }
+
+.hero-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: 10px;
+  font-family: inherit; font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.02em; cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .15s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, rgba(91,173,255,.18), rgba(91,173,255,.10));
+  border-color: var(--v-border);
+  color: var(--v-hi);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, rgba(91,173,255,.26), rgba(91,173,255,.16));
+  border-color: rgba(91,173,255,.3);
+  box-shadow: 0 0 20px rgba(91,173,255,.12);
+}
+.btn-ghost {
+  background: rgba(255,255,255,.04);
+  border-color: var(--line2);
+  color: var(--muted);
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.14);
+  color: var(--text);
+}
+
+/* hero right — status cards */
+.hero-right {
+  display: flex; flex-direction: column; gap: 10px;
+  position: relative;
+}
+
+.status-card {
+  background: rgba(0,0,0,.22);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 14px 16px;
+}
+.status-card .sc-label {
+  font-size: 0.6rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--soft); margin-bottom: 4px;
+}
+.status-card .sc-title {
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--text); letter-spacing: -0.01em;
+  margin-bottom: 3px;
+}
+.status-card .sc-body {
+  font-size: 0.72rem; font-weight: 300;
+  color: var(--muted); line-height: 1.55;
+}
+.status-card .sc-mono {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.78rem; font-weight: 500;
+  color: var(--text); letter-spacing: -0.01em;
+  margin-bottom: 3px;
+}
+
+/* ── SECTION HEAD ── */
+.sec {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  margin: 44px 0 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.sec h2 {
+  font-size: 1rem; font-weight: 600;
+  letter-spacing: -0.02em; color: var(--text);
+}
+.sec-sub {
+  font-size: 0.7rem; font-weight: 400;
+  color: var(--soft);
+}
+.sec-mono {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.65rem; color: var(--soft);
+}
+
+/* ── TOOL GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media(max-width:900px){ .grid{ grid-template-columns: repeat(2,1fr); } }
+@media(max-width:540px){ .grid{ grid-template-columns: 1fr; } }
+
+.tool {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card);
+  display: flex; flex-direction: column; gap: 8px;
+  position: relative; overflow: hidden;
+  transition: background .18s, border-color .18s;
+  min-height: 156px;
+}
+.tool:hover {
+  background: var(--card2);
+  border-color: var(--line2);
+}
+
+/* electric shimmer on hover */
+.tool::after {
+  content: '';
+  position: absolute; inset: -1px;
+  border-radius: var(--r);
+  background: radial-gradient(circle at 80% 80%, rgba(91,173,255,.06), transparent 55%);
+  opacity: 0; transition: opacity .25s;
+  pointer-events: none;
+}
+.tool:hover::after { opacity: 1; }
+
+/* live tool top border glow */
+.tool.live {
+  border-color: rgba(91,173,255,.16);
+  background: linear-gradient(160deg, rgba(91,173,255,.06) 0%, var(--card) 40%);
+}
+.tool.live::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--v) 35%, var(--m) 65%, transparent);
+  opacity: 0.55;
+}
+
+.tool.dim { opacity: 0.42; pointer-events: none; }
+
+.chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.chip {
+  font-size: 0.58rem; font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 2px 7px; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.25);
+  color: var(--soft);
+}
+.chip.live {
+  border-color: var(--v-border);
+  color: var(--v);
+  background: var(--v-lo);
+}
+
+.tool h3 {
+  font-size: 0.88rem; font-weight: 600;
+  color: var(--text); letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+.tool p {
+  font-size: 0.74rem; font-weight: 300;
+  color: var(--muted); line-height: 1.65; flex: 1;
+}
+.tool-link {
+  font-size: 0.68rem; font-weight: 500;
+  color: var(--v); opacity: .7;
+  transition: opacity .15s; margin-top: 2px;
+}
+.tool:hover .tool-link { opacity: 1; }
+.tool-soon {
+  font-size: 0.6rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--faint); margin-top: 2px;
+}
+
+/* ── TWO-COL ── */
+.twocol {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+@media(max-width:640px){ .twocol{ grid-template-columns: 1fr; } }
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card);
+  padding: 22px 20px;
+}
+.card h3 {
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--text); letter-spacing: -0.01em;
+  margin-bottom: 14px;
+}
+.list {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 0;
+}
+.list li {
+  font-size: 0.74rem; font-weight: 300;
+  color: var(--muted); line-height: 1.5;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,.035);
+  display: flex; gap: 10px; align-items: baseline;
+}
+.list li:last-child { border-bottom: none; }
+.list li::before {
+  content: '·';
+  color: var(--soft); font-size: 0.8rem; flex-shrink: 0;
+}
+
+/* ── PILLARS ── */
+.pillars {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+}
+@media(max-width:720px){ .pillars{ grid-template-columns: 1fr; } }
+
+.pillar {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card);
+  padding: 22px 20px;
+}
+.pillar-n {
+  font-size: 0.58rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--v); opacity: .5; margin-bottom: 10px;
+}
+.pillar h3 {
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--text); letter-spacing: -0.01em;
+  margin-bottom: 8px; line-height: 1.3;
+}
+.pillar p {
+  font-size: 0.74rem; font-weight: 300;
+  color: var(--muted); line-height: 1.65;
+}
+
+/* ── ROADMAP ── */
+.roadmap {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.rm {
+  display: flex; align-items: center; gap: 16px;
+  padding: 13px 20px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.74rem;
+  transition: background .14s;
+}
+.rm:last-child { border-bottom: none; }
+.rm:hover { background: var(--card2); }
+
+.rmpip {
+  width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+}
+.rmpip.live    { background: var(--m); box-shadow: 0 0 7px var(--m-glow); }
+.rmpip.soon    { background: var(--v); opacity: .4; }
+.rmpip.planned { background: rgba(255,255,255,.18); }
+
+.rm-slug {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.67rem; color: rgba(255,255,255,.35);
+  white-space: nowrap; flex-shrink: 0; min-width: 220px;
+}
+.rm-desc { color: var(--muted); font-weight: 300; flex: 1; }
+.rm-st {
+  font-size: 0.58rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--soft); flex-shrink: 0;
+}
+.rm-st.live { color: var(--m); }
+
+@media(max-width:580px){
+  .rm-slug { min-width: 0; font-size: 0.6rem; }
+  .rm-st { display: none; }
+}
+
+/* ── CONTACT ── */
+.contact-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card);
+  padding: 24px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+}
+.contact-card p {
+  font-size: 0.76rem; font-weight: 300;
+  color: var(--muted); line-height: 1.75; max-width: 52ch;
+}
+.contact-card a {
+  color: var(--v-hi);
+  border-bottom: 1px solid rgba(91,173,255,.2);
+  transition: opacity .15s;
+}
+.contact-card a:hover { opacity: .65; }
+
+/* ── FOOTER ── */
+footer {
+  margin-top: 56px; padding-top: 18px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+  font-size: 0.64rem; font-weight: 400;
+  color: var(--soft);
+}
+footer a { color: var(--soft); transition: color .15s; }
+footer a:hover { color: var(--muted); }
+
+/* ── REVEAL ── */
+.r {
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.r.in { opacity: 1; transform: none; }
+
+/* hero children animate in sequence */
+.hero-badge { opacity:0; animation: up .55s ease .1s forwards; }
+.hero h1    { opacity:0; animation: up .55s ease .2s forwards; }
+.hero-body  { opacity:0; animation: up .55s ease .3s forwards; }
+.hero-btns  { opacity:0; animation: up .55s ease .4s forwards; }
+.hero-right { opacity:0; animation: up .55s ease .25s forwards; }
+
+@keyframes up {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:none; }
+}
+
+</style>
 </head>
-
 <body>
-  <div class="wrap">
-    <header class="top">
-      <div class="brand">
-        <div class="mark" aria-hidden="true"></div>
-        <div>
-          <div><b>voltmeadow</b></div>
-          <div style="color:var(--muted); font-size:13px;">a meadow of small tools, charged with potential</div>
-        </div>
+<div class="wrap">
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div class="brand-text">
+        <div class="brand-name">voltmeadow</div>
+        <div class="brand-tag">a meadow of small tools, charged with potential</div>
       </div>
+    </div>
+    <nav class="nav-links" aria-label="primary">
+      <a href="#tools">tools</a>
+      <a href="#principles">principles</a>
+      <a href="#roadmap">roadmap</a>
+      <a href="#contact">contact</a>
+    </nav>
+  </header>
 
-      <nav class="nav" aria-label="primary">
-        <a href="#tools">tools</a>
-        <a href="#principles">principles</a>
-        <a href="#now-growing">now growing</a>
-        <a href="#contact">contact</a>
-      </nav>
-    </header>
-
-    <main>
-      <section class="hero" aria-label="intro">
-        <div class="hero-inner">
-          <div>
-            <div class="tag"><span class="dot"></span><span>small, stable, low-maintenance systems</span></div>
-            <h1>build once, use quietly, keep working</h1>
-            <p class="lead">
-              voltmeadow is a collection of practical utilities—language tools, gentle automations, and small instruments that reduce friction
-              without demanding attention
-            </p>
-
-            <div class="cta">
-              <a class="btn primary" href="#tools">browse tools</a>
-              <a class="btn" href="#now-growing">see what’s next</a>
-              <a class="btn" href="#contact">get in touch</a>
-            </div>
-          </div>
-
-          <aside class="card side" aria-label="status">
-            <div class="mini">
-              <h3>status</h3>
-              <b>seed stage</b>
-              <p>this meadow grows in small cycles, with a bias toward stability</p>
-            </div>
-
-            <div class="mini">
-              <h3>design rule</h3>
-              <b>boring over brittle</b>
-              <p>simple inputs, simple outputs, minimal dependencies</p>
-            </div>
-
-            <div class="mini">
-              <h3>platform</h3>
-              <b class="mono">voltmeadow.com</b>
-              <p>built for fast load, low cost, and steady iteration</p>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <div class="section-head" id="tools">
-        <div>
-          <h2>tools</h2>
-          <p>small utilities with strong slugs and obvious purpose</p>
-        </div>
-        <p class="mono" style="margin:0; color:var(--soft);">/tools/&lt;name&gt;</p>
+  <!-- HERO -->
+  <section class="hero" aria-label="intro">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        small, stable, low-maintenance systems
       </div>
-
-      <section class="grid" aria-label="tools grid">
-        <!-- replace # with real tool links later (ex: /tools/japanese-sign-decoder) -->
-        <a class="card tool" href="#" aria-label="tool placeholder 1">
-          <div class="kicker">
-            <span class="chip">language</span>
-            <span class="chip">decoder</span>
-          </div>
-          <h3>japanese sign decoder</h3>
-          <p>turn signage and UI wording into plain meaning + nuance</p>
-          <span class="link">view tool <span class="arrow">→</span></span>
-        </a>
-
-        <a class="card tool" href="#" aria-label="tool placeholder 2">
-          <div class="kicker">
-            <span class="chip">study</span>
-            <span class="chip">anki</span>
-          </div>
-          <h3>kanji lattice exporter</h3>
-          <p>generate a tight memory network and export to flashcards</p>
-          <span class="link">view tool <span class="arrow">→</span></span>
-        </a>
-
-        <a class="card tool" href="#" aria-label="tool placeholder 3">
-          <div class="kicker">
-            <span class="chip">planner</span>
-            <span class="chip">calculator</span>
-          </div>
-          <h3>stay window tracker</h3>
-          <p>simple date math for travel windows and re-entry planning</p>
-          <span class="link">view tool <span class="arrow">→</span></span>
-        </a>
-
-        <a class="card tool" href="#" aria-label="tool placeholder 4">
-          <div class="kicker">
-            <span class="chip">text</span>
-            <span class="chip">tone</span>
-          </div>
-          <h3>message polisher</h3>
-          <p>make writing calm, neutral, and readable without changing intent</p>
-          <span class="link">view tool <span class="arrow">→</span></span>
-        </a>
-
-        <a class="card tool" href="#" aria-label="tool placeholder 5">
-          <div class="kicker">
-            <span class="chip">generator</span>
-            <span class="chip">ambient</span>
-          </div>
-          <h3>weather mood card</h3>
-          <p>generate simple atmosphere cards for journaling or wallpapers</p>
-          <span class="link">view tool <span class="arrow">→</span></span>
-        </a>
-
-        <a class="card tool" href="#" aria-label="tool placeholder 6">
-          <div class="kicker">
-            <span class="chip">utility</span>
-            <span class="chip">converter</span>
-          </div>
-          <h3>tiny converter set</h3>
-          <p>fast converters you can bookmark and trust</p>
-          <span class="link">view tool <span class="arrow">→</span></span>
-        </a>
-      </section>
-
-      <div class="section-head" id="principles">
-        <div>
-          <h2>principles</h2>
-          <p>how the meadow stays usable over time</p>
-        </div>
+      <h1>build once,<br>use quietly,<br>keep working</h1>
+      <p class="hero-body">
+        voltmeadow is a field of small, deterministic utilities —
+        <strong>narrow tools for recurring friction</strong>,
+        built without accounts, dashboards, or content treadmills.
+        instruments that do one thing and keep doing it.
+      </p>
+      <div class="hero-btns">
+        <a href="#tools" class="btn btn-primary">browse tools</a>
+        <a href="#roadmap" class="btn btn-ghost">see what's next</a>
+        <a href="#contact" class="btn btn-ghost">get in touch</a>
       </div>
+    </div>
 
-      <section class="twocol" aria-label="principles">
-        <div class="card pad">
-          <h3 style="margin:0 0 10px;">what gets built</h3>
-          <ul class="list">
-            <li>narrow tools for recurring annoyances</li>
-            <li>simple inputs, obvious outputs</li>
-            <li>stable dependencies</li>
-            <li>pages that can rank by intent, not promotion</li>
-          </ul>
-        </div>
-        <div class="card pad">
-          <h3 style="margin:0 0 10px;">what gets avoided</h3>
-          <ul class="list">
-            <li>features that create support burden</li>
-            <li>platform lock-in where possible</li>
-            <li>anything that needs a content treadmill</li>
-            <li>products that only work with constant attention</li>
-          </ul>
-        </div>
-      </section>
-
-      <div class="section-head" id="now-growing">
-        <div>
-          <h2>now growing</h2>
-          <p>a small public queue so the direction stays coherent</p>
-        </div>
+    <aside class="hero-right" aria-label="status">
+      <div class="status-card">
+        <div class="sc-label">status</div>
+        <div class="sc-title">seed stage</div>
+        <div class="sc-body">this meadow grows in small cycles, with a bias toward stability</div>
       </div>
-
-      <section class="card pad" aria-label="roadmap">
-        <ul class="list">
-          <li><span class="mono">/tools/japanese-sign-decoder</span> — first release</li>
-          <li><span class="mono">/tools/kanji-lattice-exporter</span> — export formats + presets</li>
-          <li><span class="mono">/tools/stay-window-tracker</span> — simple country profiles</li>
-        </ul>
-      </section>
-
-      <div class="section-head" id="contact">
-        <div>
-          <h2>contact</h2>
-          <p>feedback, bug reports, or quiet collaboration</p>
-        </div>
+      <div class="status-card">
+        <div class="sc-label">design rule</div>
+        <div class="sc-title">boring over brittle</div>
+        <div class="sc-body">simple inputs, simple outputs, minimal dependencies</div>
       </div>
+      <div class="status-card">
+        <div class="sc-label">platform</div>
+        <div class="sc-mono">voltmeadow.com</div>
+        <div class="sc-body">fast load, low cost, steady iteration</div>
+      </div>
+    </aside>
+  </section>
 
-      <section class="card pad" aria-label="contact">
-        <p style="margin:0; color:var(--muted);">
-          email:
-          <a class="mono" href="mailto:hello@voltmeadow.com">hello@voltmeadow.com</a>
-          <span style="color:var(--soft);"> (or swap this for a form later)</span>
-        </p>
-      </section>
-
-      <footer class="footer">
-        <div>© <span id="y"></span> voltmeadow</div>
-        <div>
-          <a href="#tools">tools</a> ·
-          <a href="#principles">principles</a> ·
-          <a href="#contact">contact</a>
-        </div>
-      </footer>
-    </main>
+  <!-- TOOLS -->
+  <div class="sec r" id="tools">
+    <h2>tools</h2>
+    <p class="sec-sub">small utilities with strong slugs and obvious purpose</p>
+    <span class="sec-mono">/tools/&lt;name&gt;</span>
   </div>
 
-  <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
-  </script>
+  <div class="grid r">
+    <a class="tool live" href="/tools/meeting-cost-clock">
+      <div class="chips">
+        <span class="chip live">live</span>
+        <span class="chip">workplace</span>
+        <span class="chip">calculator</span>
+      </div>
+      <h3>meeting cost clock</h3>
+      <p>slot-machine reels count the cost of a meeting in real time. share the link in your calendar invite.</p>
+      <span class="tool-link">view tool →</span>
+    </a>
+
+    <div class="tool dim">
+      <div class="chips"><span class="chip">finance</span><span class="chip">personal</span></div>
+      <h3>true cost</h3>
+      <p>the real price of a purchase — in hours worked, not just dollars.</p>
+      <span class="tool-soon">coming soon</span>
+    </div>
+
+    <div class="tool dim">
+      <div class="chips"><span class="chip">household</span><span class="chip">fairness</span></div>
+      <h3>chore splitter</h3>
+      <p>fair task allocation for two or more people. shareable link, no signup.</p>
+      <span class="tool-soon">coming soon</span>
+    </div>
+
+    <div class="tool dim">
+      <div class="chips"><span class="chip">finance</span><span class="chip">audit</span></div>
+      <h3>subscription audit</h3>
+      <p>log your subscriptions manually. see the real total. get a clear cancellation list.</p>
+      <span class="tool-soon">coming soon</span>
+    </div>
+
+    <div class="tool dim">
+      <div class="chips"><span class="chip">shopping</span><span class="chip">calculator</span></div>
+      <h3>price per unit</h3>
+      <p>compare up to four products by price per unit. for the cereal aisle argument.</p>
+      <span class="tool-soon">coming soon</span>
+    </div>
+
+    <div class="tool dim">
+      <div class="chips"><span class="chip">health</span><span class="chip">visual</span></div>
+      <h3>calorie density</h3>
+      <p>which foods let you eat the most volume for the fewest calories. visual, instant.</p>
+      <span class="tool-soon">coming soon</span>
+    </div>
+  </div>
+
+  <!-- PILLARS -->
+  <div class="pillars r" style="margin-top: 10px;">
+    <div class="pillar">
+      <div class="pillar-n">01</div>
+      <h3>determinism over conversation</h3>
+      <p>if AI can answer it casually, it's weak. voltmeadow builds instruments — things that enforce rules, calculate correctly, and produce reproducible results.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-n">02</div>
+      <h3>boring is strong</h3>
+      <p>excitement attracts noise. boring attracts revenue. everything here solves a narrow, recurring friction and works without community, updates, or virality.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-n">03</div>
+      <h3>built to last, not to grow</h3>
+      <p>a tool that works in 2026 should still work in 2031. no backend, no third-party dependencies, no silent breakage when someone changes their terms.</p>
+    </div>
+  </div>
+
+  <!-- PRINCIPLES -->
+  <div class="sec r" id="principles">
+    <h2>principles</h2>
+    <p class="sec-sub">how the meadow stays usable over time</p>
+  </div>
+
+  <div class="twocol r">
+    <div class="card">
+      <h3>what gets built</h3>
+      <ul class="list">
+        <li>narrow tools for recurring, real annoyances</li>
+        <li>deterministic calculators and audit engines</li>
+        <li>simple inputs, obvious outputs</li>
+        <li>things that run entirely in the browser</li>
+        <li>pages that earn traffic by being useful, not promoted</li>
+        <li>one-time value — not dependency value</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>what gets avoided</h3>
+      <ul class="list">
+        <li>anything AI handles better in a casual conversation</li>
+        <li>features that create ongoing support burden</li>
+        <li>tools that break when a third-party changes terms</li>
+        <li>accounts, tracking, or data collection of any kind</li>
+        <li>content treadmills or community requirements</li>
+        <li>startup theater of any kind</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="sec r" id="roadmap">
+    <h2>now growing</h2>
+    <p class="sec-sub">a small public queue so the direction stays coherent</p>
+  </div>
+
+  <div class="roadmap r">
+    <div class="rm">
+      <div class="rmpip live"></div>
+      <span class="rm-slug">/tools/meeting-cost-clock</span>
+      <span class="rm-desc">real-time cost counter with slot-machine reels — shareable link</span>
+      <span class="rm-st live">live</span>
+    </div>
+    <div class="rm">
+      <div class="rmpip soon"></div>
+      <span class="rm-slug">/tools/true-cost</span>
+      <span class="rm-desc">real cost of a purchase in hours worked</span>
+      <span class="rm-st">soon</span>
+    </div>
+    <div class="rm">
+      <div class="rmpip soon"></div>
+      <span class="rm-slug">/tools/chore-split</span>
+      <span class="rm-desc">fair household task allocation, shareable result</span>
+      <span class="rm-st">soon</span>
+    </div>
+    <div class="rm">
+      <div class="rmpip soon"></div>
+      <span class="rm-slug">/tools/sub-audit</span>
+      <span class="rm-desc">manual subscription tracker — no bank connection</span>
+      <span class="rm-st">soon</span>
+    </div>
+    <div class="rm">
+      <div class="rmpip planned"></div>
+      <span class="rm-slug">/tools/unit-price</span>
+      <span class="rm-desc">price per unit comparison for up to four products</span>
+      <span class="rm-st">planned</span>
+    </div>
+    <div class="rm">
+      <div class="rmpip planned"></div>
+      <span class="rm-slug">/tools/calorie-density</span>
+      <span class="rm-desc">visual food volume-per-calorie comparison</span>
+      <span class="rm-st">planned</span>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="sec r" id="contact">
+    <h2>contact</h2>
+    <p class="sec-sub">feedback, bug reports, or quiet collaboration</p>
+  </div>
+
+  <div class="contact-card r">
+    <p>
+      if a tool broke, a tool should exist, or you have thoughts —
+      <a href="mailto:hello@voltmeadow.com">hello@voltmeadow.com</a>.
+      no pitch decks. no partnership proposals.<br><br>
+      one-person operation, built in spare time.
+      response time is honest, not fast.
+    </p>
+    <a href="mailto:hello@voltmeadow.com" class="btn btn-primary" style="white-space:nowrap;flex-shrink:0;">
+      send a note →
+    </a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© <span id="yr"></span> voltmeadow — everything runs in your browser. no tracking.</span>
+    <span>
+      <a href="#tools">tools</a> ·
+      <a href="#principles">principles</a> ·
+      <a href="#roadmap">roadmap</a> ·
+      <a href="#contact">contact</a>
+    </span>
+  </footer>
+
+</div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.07 });
+document.querySelectorAll('.r').forEach(el => io.observe(el));
+</script>
 </body>
 </html>
